@@ -184,7 +184,7 @@ It also demonstrates the importance of comparing machine learning algorithms aga
 ## Authors
 
 **Edward Afutu Amoni**  
-[GitHub](https://github.com/edwardafutu) | [LinkedIn – Add profile link]
+[GitHub](https://github.com/edwardafutu) | [linkedin.com/in/edwardafutu]
 
 **Victoria Naa Adzeley Koney-Mensah**
 
