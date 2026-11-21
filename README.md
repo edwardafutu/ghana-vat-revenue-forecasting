@@ -174,7 +174,12 @@ It also demonstrates the importance of comparing machine learning algorithms aga
 
 ## Repository Contents
 
-This repository will contain the analytical code, documentation and supporting materials associated with the dissertation, subject to data-sharing permissions and the availability of reproducible project files.
+| File | Description |
+|---|---|
+| `VAT_forecasting_pipeline (2).R` | Main R script containing data preparation, exploratory analysis, forecasting model implementation, model evaluation and visualisation. |
+| `dissertation_public.Rmd` | R Markdown source file containing the MSc dissertation, including the research background, methodology, analysis, results, discussion and conclusions. |
+
+**Note:** The dataset (`full_dataset.xlsx`) required to run the R script is not included in this repository.
 
 ## Authors
 
