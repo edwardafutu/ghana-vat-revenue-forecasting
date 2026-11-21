@@ -1,0 +1,1103 @@
+---
+title: ""
+output:
+  pdf_document:
+    latex_engine: xelatex
+    number_sections: false
+    toc: false
+    pandoc_args: ["--top-level-division=chapter"]
+documentclass: report
+classoption:
+  - 12pt
+  - a4paper
+geometry: margin=1in
+mainfont: "Times New Roman"
+header-includes:
+  - |
+    \usepackage{float}\floatplacement{figure}{H}\usepackage{array}\usepackage{booktabs}
+    \usepackage{caption}\captionsetup{labelformat=empty,justification=centering,font=small,skip=6pt}
+    \usepackage{setspace}\doublespacing
+    \usepackage{etoolbox}\AtBeginEnvironment{longtable}{\small\singlespacing}
+    \usepackage{titlesec}
+    \titleformat{\chapter}[block]{\normalfont\centering\bfseries\large}{}{0pt}{}
+    \titlespacing*{\chapter}{0pt}{0pt}{22pt}
+    \titleformat{\section}{\normalfont\bfseries\normalsize}{\thesection}{1em}{}
+    \titleformat{\subsection}{\normalfont\bfseries\normalsize}{\thesubsection}{1em}{}
+    \titlespacing*{\section}{0pt}{16pt}{8pt}
+    \titlespacing*{\subsection}{0pt}{12pt}{6pt}
+    \setlength{\parindent}{0pt}\setlength{\parskip}{6pt}
+    \makeatletter
+    \setcounter{tocdepth}{10}
+    \newcommand{\tocfront}[2]{\par\addvspace{4pt}\@dottedtocline{0}{0em}{0em}{\bfseries #1}{\pageref{#2}}}
+    \newcommand{\tocchapter}[3]{\par\addvspace{5pt}\noindent\textbf{CHAPTER #1}\par\@dottedtocline{0}{0em}{0em}{\bfseries #2}{\pageref{#3}}}
+    \newcommand{\tocsec}[3]{\@dottedtocline{0}{1.2em}{2.6em}{\makebox[2.6em][l]{#1}#2}{\pageref{#3}}}
+    \newcommand{\tocsub}[3]{\@dottedtocline{0}{3.8em}{3.4em}{\makebox[3.4em][l]{#1}#2}{\pageref{#3}}}
+    \newcommand{\tocfig}[3]{\@dottedtocline{0}{0em}{5.2em}{\makebox[5.2em][l]{#1}#2}{\pageref{#3}}}
+    \newcommand{\abbr}[2]{\par\noindent\hangindent=4.5em\hangafter=1\makebox[4.5em][l]{#1}#2\par}
+    \makeatother
+    \newcommand{\sigline}[1]{\par\begingroup\singlespacing\vspace{1.4cm}\noindent\rule{0.45\textwidth}{0.4pt}\hspace{0.08\textwidth}\rule{0.35\textwidth}{0.4pt}\par\vspace{2pt}\noindent\begin{minipage}[t]{0.53\textwidth}\small #1\end{minipage}\begin{minipage}[t]{0.35\textwidth}\small Date\end{minipage}\par\endgroup}
+---
+
+```{=latex}
+\begin{titlepage}
+\centering\singlespacing
+\IfFileExists{ug_logo.png}{\includegraphics[height=3.2cm]{ug_logo.png}}{\fbox{\parbox[c][2.4cm][c]{4.5cm}{\centering\small Save the new UG logo as\\ \texttt{ug\_logo.png}\\ next to this file}}}\par\vspace{0.8cm}
+{\bfseries\large COLLEGE OF BASIC AND APPLIED SCIENCES\par\vspace{0.6em}
+SCHOOL OF PHYSICAL AND MATHEMATICAL SCIENCES\par\vspace{0.6em}
+DEPARTMENT OF STATISTICS AND ACTUARIAL SCIENCE\par}
+\vspace{1.6cm}
+{\bfseries\Large PREDICTIVE MODELLING OF DOMESTIC VALUE ADDED TAX REVENUE IN GHANA USING MACHINE LEARNING TECHNIQUES\par}
+\vspace{1.4cm}
+{\bfseries\large BY\par\vspace{0.8em}
+EDWARD AFUTU AMONI (22424415)\par\vspace{0.5em}
+VICTORIA NAA ADZELEY KONEY-MENSAH (22424394)\par}
+\vspace{1.6cm}
+{\bfseries THIS DISSERTATION IS SUBMITTED TO THE SCHOOL OF GRADUATE STUDIES, UNIVERSITY OF GHANA, LEGON, IN PARTIAL FULFILLMENT OF THE REQUIREMENT FOR THE AWARD OF MASTER OF SCIENCE (MSC) DEGREE IN BIG DATA ANALYTICS\par}
+\vspace{1.4cm}
+{\bfseries\large NOVEMBER, 2026\par}
+\end{titlepage}
+\pagenumbering{roman}\setcounter{page}{2}
+```
+
+# DECLARATION {#declaration .unnumbered .unlisted}
+
+**Candidates’ Declaration**
+
+We hereby declare that this dissertation is the result of our own original research, carried out under supervision, and that no part of it has been presented for another degree in this University or elsewhere. Work by other authors has been acknowledged by references.
+
+```{=latex}
+\sigline{Edward Afutu Amoni (22424415)}
+\sigline{Victoria Naa Adzeley Koney-Mensah (22424394)}
+\vspace{1.8cm}
+```
+
+**Supervisor’s Declaration**
+
+I hereby declare that the preparation and presentation of this dissertation were supervised in accordance with the guidelines on supervision of dissertations laid down by the University of Ghana.
+
+```{=latex}
+\sigline{Dr. Benedict Mbeah-Baiden (Supervisor)}
+```
+
+# ABSTRACT {#abstract .unnumbered .unlisted}
+
+Accurate Domestic Value Added Tax (VAT) forecasts are essential for budgeting and fiscal planning in Ghana. In 2024, Domestic VAT fell 24.3% short of its target although total tax revenue exceeded its target, and, to the best of our knowledge, no earlier study had applied machine learning to Domestic VAT forecasting in Ghana. This study applied four machine learning models, namely the Least Absolute Shrinkage and Selection Operator (LASSO), Support Vector Regression (SVR), Extreme Gradient Boosting (XGBoost) and a one-dimensional Convolutional Neural Network (1D-CNN), to forecast monthly Domestic VAT revenue and compared them with Naive, Seasonal Naive and ARIMAX benchmarks. The data were 192 monthly observations from January 2010 to December 2025 on Domestic VAT, the exchange rate, the Treasury bill rate, the Composite Index of Economic Activity (CIEA) and inflation. Every model forecast the monthly change in log VAT from 15 predictors built from earlier months only. The models were tuned by rolling validation on data up to December 2023 and tested on the last 24 months using RMSE, MAE and MAPE. SVR was the most accurate model on all three measures (RMSE 201.40, MAE 145.59, MAPE 9.36%), but its lead over ARIMAX (RMSE 201.94, MAPE 9.52%) was very small. LASSO and XGBoost beat the Naive forecast but not ARIMAX, the 1D-CNN did no better than the Naive forecast, and all models missed a sharp jump in August 2024. Past VAT changes, the previous month’s changes in economic activity and the exchange rate, and the December effect were the main drivers of VAT growth. Machine learning therefore matched, and slightly improved on, ARIMAX, but with fewer than 200 observations the gains were small. The study recommended that the Ghana Revenue Authority use SVR together with ARIMAX for one-month-ahead forecasts and record policy and administrative events.
+
+**Keywords:** Domestic VAT; revenue forecasting; machine learning; support vector regression; ARIMAX; Ghana
+
+# ACKNOWLEDGEMENTS {#acknowledgements .unnumbered .unlisted}
+
+We thank our supervisor, Dr. Benedict Mbeah-Baiden, for his guidance, patience and useful comments throughout this work. We are grateful to the lecturers and staff of the Department of Statistics and Actuarial Science, University of Ghana, for their support during the programme. We also thank the Ghana Revenue Authority for providing the Domestic VAT data, and the Bank of Ghana and the Ghana Statistical Service for making their data available. Finally, we thank our families and friends for their encouragement.
+
+```{=latex}
+\clearpage\begin{center}{\bfseries\large CONTENTS}\end{center}\vspace{6pt}
+\begingroup\singlespacing\setlength{\parskip}{0pt}
+\tocfront{DECLARATION}{declaration}
+\tocfront{ABSTRACT}{abstract}
+\tocfront{ACKNOWLEDGEMENTS}{acknowledgements}
+\tocfront{LIST OF FIGURES}{lof}
+\tocfront{LIST OF TABLES}{lot}
+\tocfront{LIST OF ABBREVIATIONS}{loa}
+\tocchapter{1}{INTRODUCTION}{ch1}
+\tocsec{1.1}{BACKGROUND OF THE STUDY}{s1-1}
+\tocsec{1.2}{PROBLEM STATEMENT}{s1-2}
+\tocsec{1.3}{AIM AND OBJECTIVES OF THE STUDY}{s1-3}
+\tocsec{1.4}{RESEARCH OBJECTIVES}{s1-4}
+\tocsec{1.5}{RESEARCH QUESTIONS}{s1-5}
+\tocsec{1.6}{SIGNIFICANCE OF THE STUDY}{s1-6}
+\tocsec{1.7}{LIMITATIONS OF THE STUDY}{s1-7}
+\tocsec{1.8}{ORGANISATION OF THE STUDY}{s1-8}
+\tocchapter{2}{LITERATURE REVIEW}{ch2}
+\tocsec{2.1}{INTRODUCTION}{s2-1}
+\tocsec{2.2}{CONCEPT OF TAXATION}{s2-2}
+\tocsub{2.2.1}{VALUE ADDED TAX (VAT)}{s2-2-1}
+\tocsub{2.2.2}{DOMESTIC VAT IN GHANA}{s2-2-2}
+\tocsub{2.2.3}{DETERMINANTS OF DOMESTIC VAT REVENUE}{s2-2-3}
+\tocsub{2.2.4}{THEORY UNDERPINNING REVENUE FORECASTING}{s2-2-4}
+\tocsec{2.3}{MACHINE LEARNING IN REVENUE FORECASTING}{s2-3}
+\tocsub{2.3.1}{OVERVIEW OF MACHINE LEARNING}{s2-3-1}
+\tocsub{2.3.2}{TRADITIONAL FORECASTING METHODS}{s2-3-2}
+\tocsub{2.3.3}{MACHINE LEARNING FORECASTING TECHNIQUES}{s2-3-3}
+\tocsub{2.3.4}{MACHINE LEARNING APPLICATIONS IN TAX FORECASTING}{s2-3-4}
+\tocsub{2.3.5}{STUDIES CONDUCTED IN GHANA}{s2-3-5}
+\tocsec{2.4}{RESEARCH GAP}{s2-4}
+\tocsec{2.5}{CONCEPTUAL FRAMEWORK}{s2-5}
+\tocsec{2.6}{CHAPTER SUMMARY}{s2-6}
+\tocchapter{3}{RESEARCH METHODOLOGY}{ch3}
+\tocsec{3.1}{INTRODUCTION}{s3-1}
+\tocsec{3.2}{RESEARCH DESIGN}{s3-2}
+\tocsec{3.3}{STUDY CONTEXT}{s3-3}
+\tocsec{3.4}{DATA SOURCES AND VARIABLES}{s3-4}
+\tocsec{3.5}{DATA PREPARATION}{s3-5}
+\tocsub{3.5.1}{DATA CHECKS}{s3-5-1}
+\tocsub{3.5.2}{THE VARIABLE TO BE FORECAST}{s3-5-2}
+\tocsub{3.5.3}{PREDICTORS}{s3-5-3}
+\tocsub{3.5.4}{TRAINING AND TEST DATA}{s3-5-4}
+\tocsec{3.6}{FORECASTING MODELS}{s3-6}
+\tocsub{3.6.1}{BENCHMARK MODELS}{s3-6-1}
+\tocsub{3.6.2}{LASSO}{s3-6-2}
+\tocsub{3.6.3}{SUPPORT VECTOR REGRESSION}{s3-6-3}
+\tocsub{3.6.4}{XGBOOST}{s3-6-4}
+\tocsub{3.6.5}{ONE-DIMENSIONAL CONVOLUTIONAL NEURAL NETWORK}{s3-6-5}
+\tocsec{3.7}{TUNING THE MODELS}{s3-7}
+\tocsec{3.8}{FORECAST EVALUATION}{s3-8}
+\tocsec{3.9}{SOFTWARE}{s3-9}
+\tocsec{3.10}{ETHICAL CONSIDERATIONS}{s3-10}
+\tocsec{3.11}{CHAPTER SUMMARY}{s3-11}
+\tocchapter{4}{DATA ANALYSIS, RESULTS AND DISCUSSION}{ch4}
+\tocsec{4.1}{INTRODUCTION}{s4-1}
+\tocsec{4.2}{EXPLORATORY ANALYSIS OF THE DATA}{s4-2}
+\tocsub{4.2.1}{DOMESTIC VAT OVER TIME}{s4-2-1}
+\tocsub{4.2.2}{THE OTHER VARIABLES}{s4-2-2}
+\tocsub{4.2.3}{SEASONALITY}{s4-2-3}
+\tocsub{4.2.4}{UNUSUAL MONTHS}{s4-2-4}
+\tocsub{4.2.5}{RELATIONSHIP BETWEEN THE PREDICTORS AND THE CHANGE IN VAT}{s4-2-5}
+\tocsub{4.2.6}{STATIONARITY OF THE SERIES}{s4-2-6}
+\tocsec{4.3}{TRAINING AND TEST DATA}{s4-3}
+\tocsec{4.4}{RESULTS OF THE INDIVIDUAL MODELS}{s4-4}
+\tocsub{4.4.1}{ARIMAX}{s4-4-1}
+\tocsub{4.4.2}{LASSO}{s4-4-2}
+\tocsub{4.4.3}{SVR}{s4-4-3}
+\tocsub{4.4.4}{XGBOOST}{s4-4-4}
+\tocsub{4.4.5}{1D-CNN}{s4-4-5}
+\tocsec{4.5}{FORECAST PERFORMANCE ON THE TEST DATA}{s4-5}
+\tocsub{4.5.1}{ACCURACY MEASURES}{s4-5-1}
+\tocsub{4.5.2}{FORECASTS AND ERRORS OVER TIME}{s4-5-2}
+\tocsec{4.6}{DISCUSSION}{s4-6}
+\tocsub{4.6.1}{ACCURACY OF THE MACHINE LEARNING MODELS}{s4-6-1}
+\tocsub{4.6.2}{THE MOST ACCURATE FORECASTING MODEL}{s4-6-2}
+\tocsub{4.6.3}{FACTORS THAT INFLUENCE DOMESTIC VAT REVENUE}{s4-6-3}
+\tocsec{4.7}{CHAPTER SUMMARY}{s4-7}
+\tocchapter{5}{SUMMARY, CONCLUSIONS AND RECOMMENDATIONS}{ch5}
+\tocsec{5.1}{INTRODUCTION}{s5-1}
+\tocsec{5.2}{SUMMARY OF THE STUDY}{s5-2}
+\tocsec{5.3}{SUMMARY OF FINDINGS}{s5-3}
+\tocsec{5.4}{CONCLUSIONS}{s5-4}
+\tocsec{5.5}{RECOMMENDATIONS}{s5-5}
+\tocsec{5.6}{LIMITATIONS OF THE STUDY}{s5-6}
+\tocsec{5.7}{SUGGESTIONS FOR FURTHER RESEARCH}{s5-7}
+\tocfront{REFERENCES}{references}
+\endgroup
+```
+
+# LIST OF FIGURES {#lof .unnumbered .unlisted}
+
+```{=latex}
+\begingroup\singlespacing\setlength{\parskip}{0pt}
+\tocfig{Figure 2.1}{Conceptual framework of the study.}{fig-2-1}
+\tocfig{Figure 4.1}{Monthly Domestic VAT revenue in Ghana, January 2010 to December 2025 (GHS million).}{fig-4-1}
+\tocfig{Figure 4.2}{Monthly Domestic VAT revenue on a log scale. A straight line means steady percentage growth.}{fig-4-2}
+\tocfig{Figure 4.3}{The variables used in the study, January 2010 to December 2025: CIEA, CPI, exchange rate (FX, GHS per US dollar), monthly inflation (\%), Treasury bill rate (\%) and Domestic VAT (GHS million).}{fig-4-3}
+\tocfig{Figure 4.4}{Seasonality of Domestic VAT: each month's VAT as a ratio of its calendar-year average. Values above the dashed line (1.00) are above-average months. Each box covers the middle half of the years.}{fig-4-4}
+\tocfig{Figure 4.5}{Decomposition of log(VAT) into trend, seasonal and remainder parts.}{fig-4-5}
+\tocfig{Figure 4.6}{Month-to-month percentage change in Domestic VAT. Red points mark the three months that are more than three standard deviations from the average change.}{fig-4-6}
+\tocfig{Figure 4.7}{Correlation between the monthly change in log VAT (dVAT) and the predictors.}{fig-4-7}
+\tocfig{Figure 4.8}{Training period (up to December 2023) and test period (January 2024 to December 2025, shaded).}{fig-4-8}
+\tocfig{Figure 4.9}{Residual checks for the ARIMAX model: residuals over time (top), autocorrelation function (bottom left) and histogram of the residuals (bottom right).}{fig-4-9}
+\tocfig{Figure 4.10}{LASSO tuning: average validation RMSE for each value of lambda. The dashed line marks the chosen value.}{fig-4-10}
+\tocfig{Figure 4.11}{LASSO coefficients at the chosen lambda. Predictors with no bar were set to zero.}{fig-4-11}
+\tocfig{Figure 4.12}{SVR tuning: average validation RMSE for each combination of cost and gamma, for two values of epsilon. Lighter cells mean lower error.}{fig-4-12}
+\tocfig{Figure 4.13}{XGBoost: importance (gain) of each predictor.}{fig-4-13}
+\tocfig{Figure 4.14}{1D-CNN learning curve for the first of the five training runs: training and validation loss (mean squared error on scaled data).}{fig-4-14}
+\tocfig{Figure 4.15}{Test-set errors of the seven models: MAE, MAPE and RMSE (lower is better).}{fig-4-15}
+\tocfig{Figure 4.16}{Actual and predicted Domestic VAT in the test period (GHS million). All forecasts are one step ahead.}{fig-4-16}
+\tocfig{Figure 4.17}{Predicted against actual Domestic VAT for each model in the test period. The dashed line marks perfect forecasts.}{fig-4-17}
+\tocfig{Figure 4.18}{Forecast errors over time (actual minus predicted, GHS million). Positive values mean the model forecast too little.}{fig-4-18}
+\endgroup
+```
+
+# LIST OF TABLES {#lot .unnumbered .unlisted}
+
+```{=latex}
+\begingroup\singlespacing\setlength{\parskip}{0pt}
+\tocfig{Table 3.1}{Variables used in the study}{tbl-3-1}
+\tocfig{Table 3.2}{Predictors used by the models}{tbl-3-2}
+\tocfig{Table 3.3}{Settings tried for each model}{tbl-3-3}
+\tocfig{Table 4.1}{Summary statistics of the variables, January 2010 to December 2025 (n = 192)}{tbl-4-1}
+\tocfig{Table 4.2}{Unusual months (change in VAT more than three standard deviations from the average change)}{tbl-4-2}
+\tocfig{Table 4.3}{Stationarity tests (p-values)}{tbl-4-3}
+\tocfig{Table 4.4}{Settings chosen by rolling validation}{tbl-4-4}
+\tocfig{Table 4.5}{ARIMAX estimates (regression with ARIMA(0,0,1) errors, training period)}{tbl-4-5}
+\tocfig{Table 4.6}{Test-set results (January 2024 to December 2025), ordered by RMSE}{tbl-4-6}
+\tocfig{Table 4.7}{Rank of each model on each measure (1 = best)}{tbl-4-7}
+\endgroup
+```
+
+# LIST OF ABBREVIATIONS {#loa .unnumbered .unlisted}
+
+```{=latex}
+\begingroup\singlespacing\setlength{\parskip}{0pt}
+\abbr{ACF}{Autocorrelation function}
+\abbr{ADF}{Augmented Dickey–Fuller (test)}
+\abbr{ANN}{Artificial Neural Network}
+\abbr{ARIMA}{Autoregressive Integrated Moving Average}
+\abbr{ARIMAX}{ARIMA with external regressors}
+\abbr{BoG}{Bank of Ghana}
+\abbr{BSTS}{Bayesian Structural Time Series}
+\abbr{CIEA}{Composite Index of Economic Activity}
+\abbr{CIT}{Corporate Income Tax}
+\abbr{CNN}{Convolutional Neural Network}
+\abbr{CPI}{Consumer Price Index}
+\abbr{FX}{Exchange rate (GHS per US dollar)}
+\abbr{GBM}{Gradient Boosting Machine}
+\abbr{GDP}{Gross Domestic Product}
+\abbr{GHS}{Ghana cedi}
+\abbr{GRA}{Ghana Revenue Authority}
+\abbr{GRU}{Gated Recurrent Unit}
+\abbr{GSS}{Ghana Statistical Service}
+\abbr{KPSS}{Kwiatkowski–Phillips–Schmidt–Shin (test)}
+\abbr{LASSO}{Least Absolute Shrinkage and Selection Operator}
+\abbr{LSTM}{Long Short-Term Memory}
+\abbr{MAE}{Mean Absolute Error}
+\abbr{MAPE}{Mean Absolute Percentage Error}
+\abbr{ML}{Machine Learning}
+\abbr{NNAR}{Neural Network Autoregression}
+\abbr{PAYE}{Pay-As-You-Earn}
+\abbr{RBF}{Radial Basis Function}
+\abbr{ReLU}{Rectified Linear Unit}
+\abbr{RMSE}{Root Mean Square Error}
+\abbr{SME}{Small and Medium Enterprise}
+\abbr{SVR}{Support Vector Regression}
+\abbr{T-bill}{Treasury bill}
+\abbr{VAT}{Value Added Tax}
+\abbr{XGBoost}{Extreme Gradient Boosting}
+\endgroup
+```
+
+```{=latex}
+\clearpage\pagenumbering{arabic}
+```
+
+# CHAPTER 1 `<w:r><w:br/></w:r>`{=openxml}`\\`{=latex} INTRODUCTION {#ch1 .unnumbered .unlisted}
+
+## 1.1 Background of the Study {#s1-1 .unnumbered .unlisted}
+
+Taxation remains one of the most important instruments through which governments mobilise financial resources to finance public expenditure, promote economic growth and provide essential public services. Beyond generating revenue, taxation also serves broader economic and social objectives. According to Cobham (2005), taxation performs four fundamental functions commonly referred to as the “4Rs”: raising revenue to finance government expenditure, redistributing income to reduce inequality, repricing goods and activities to influence economic behaviour, and strengthening representation by enhancing the accountability relationship between governments and citizens. Consequently, an efficient tax system is indispensable for sustainable economic development, particularly in developing countries where governments face increasing expenditure demands alongside limited financing options (Ofori et al., 2021).
+
+Among the various forms of taxation, Value Added Tax (VAT) has emerged as one of the most important sources of government revenue worldwide (Ebrill et al., 2001). Introduced in France by Maurice Lauré in 1954, VAT is a broad-based consumption tax levied on the value added at each stage of production and distribution before ultimately being borne by the final consumer. Owing to its efficiency, neutrality and broad tax base, VAT has been adopted by over 120 countries, covering approximately 70% of the world’s population and generating nearly one-quarter of global government tax revenue (Ebrill et al., 2001). Since the 1980s, VAT has been the workhorse of taxation and has played a major role in increasing the ratio of tax to gross domestic product (GDP) in low- and middle-income countries (Junquera-Varela et al., 2017).
+
+In Sub-Saharan Africa, particularly within the West African sub-region, VAT has become a critical component of domestic resource mobilisation. In Nigeria, VAT contributes approximately 27.2% of total tax revenue and serves as an important source of non-oil revenue (Ojo and Shittu, 2023). Similarly, in Ghana, VAT consistently contributes between 20% and 30% of total government tax revenue, making it one of the country’s most important domestic tax handles. Since its introduction in 1998, the tax has played a central role in financing public infrastructure, education, healthcare and other government development programmes. As Ghana continues to pursue fiscal sustainability amidst increasing public expenditure, debt servicing obligations and economic uncertainties, the ability to accurately forecast VAT revenue has become increasingly important for budget preparation, fiscal planning and macroeconomic management (Ofori et al., 2021).
+
+Despite its importance, the performance of Domestic VAT revenue in Ghana has become increasingly volatile. According to the Ghana Revenue Authority (GRA) Annual Report (2024), although total tax revenue exceeded its annual target by 5.2%, Domestic VAT recorded a significant negative deviation of 24.3% from its projected target. This divergence demonstrates that improvements in aggregate tax performance do not necessarily translate into improved performance across individual tax categories. The persistent underperformance of Domestic VAT presents considerable challenges for government budgeting, fiscal policy implementation and domestic resource mobilisation, thereby highlighting the need for more accurate and reliable forecasting techniques.
+
+Several structural, macroeconomic and administrative factors contribute to the unpredictability of Domestic VAT revenue. Ghana has experienced periods of high inflation, exchange rate depreciation and fluctuations in household consumption, all of which directly influence the Domestic VAT base. In 2024, inflation reached approximately 23.8% while the Ghana cedi depreciated by about 19.2% against major foreign currencies. Although exchange rate depreciation tends to increase the nominal value of imports and consequently import VAT collections, it simultaneously erodes consumers’ purchasing power, suppresses domestic demand and weakens Domestic VAT collections. This contrasting behaviour illustrates the complex relationship between macroeconomic conditions and VAT revenue performance (Ghana Revenue Authority, 2024).
+
+Another major challenge confronting Domestic VAT mobilisation is the dominance of Ghana’s informal sector. Approximately 85% of total employment is concentrated within the informal economy, where many business transactions occur outside formal accounting systems and invoicing mechanisms. Consequently, a substantial proportion of taxable economic activities remains outside the tax net, resulting in considerable revenue leakages. In addition, administrative challenges such as delays in the implementation of electronic VAT systems, increasing deductible VAT claims by large taxpayers and compliance constraints further complicate the behaviour of Domestic VAT revenue. The interaction of these macroeconomic, structural and administrative factors generates highly complex and dynamic patterns that are difficult to model using conventional statistical forecasting approaches.
+
+Accurate revenue forecasting is fundamental to effective fiscal management because government expenditure planning, debt financing and macroeconomic policy formulation depend largely on reliable revenue projections. Traditionally, tax authorities have relied on statistical time-series models such as the Autoregressive Integrated Moving Average (ARIMA) model due to their ability to capture historical trends and seasonal variations in revenue data. However, these conventional forecasting models are built upon assumptions of linearity and stationarity and often struggle to accommodate sudden structural breaks, policy interventions and the complex nonlinear relationships that characterise modern economies. As economic systems become increasingly dynamic, the predictive performance of these traditional models tends to deteriorate.
+
+Recent advances in artificial intelligence and machine learning have created new opportunities for improving tax revenue forecasting. The integration of machine learning (ML) in various fields has been a subject of extensive research, with its application in taxation being a significant area of interest (Akinrinola et al., 2024). Unlike traditional econometric models, machine learning algorithms are capable of learning complex nonlinear relationships from large volumes of data without requiring restrictive statistical assumptions. Abedin et al. (2021) argue that conventional statistical methods fail to effectively detect information in real-world financial data because they fail to account for non-linear relationships between early-warning indicators and tax default behaviour. Also, machine learning techniques such as Artificial Neural Networks (ANNs) can model complex non-linear relationships and are not bound by the restrictive assumptions of traditional time-series models (Du Plooy and Venter, 2021). Other algorithms such as Long Short-Term Memory (LSTM) networks, Random Forests, Gradient Boosting Machines (GBM) and Gated Recurrent Units (GRU) have demonstrated superior forecasting performance across numerous economic and financial applications. Empirical evidence from recent studies indicates that machine learning models can substantially outperform conventional forecasting techniques in predicting tax revenue, particularly in environments characterised by macroeconomic volatility and structural complexity (Abedin et al., 2021; Vancsura et al., 2025). For instance, multivariate LSTM models applied to tax revenue forecasting in Nigeria achieved forecasting accuracies exceeding 98%, illustrating the growing potential of machine learning for public revenue forecasting (Ajisola, 2023). Furthermore, tax administrations across the world are increasingly integrating machine learning into tax compliance monitoring, fraud detection, audit selection and revenue forecasting as part of broader digital transformation initiatives (Twesige et al., 2020; Kifordu, 2021; Da Silva et al., 2016; Ajisola, 2023).
+
+Although the application of machine learning within tax administration has attracted growing international attention, relatively limited empirical research has focused specifically on forecasting Domestic Value Added Tax revenue in Ghana using machine learning techniques (Ofori et al., 2021; Agbenyega et al., 2022). Existing studies have largely relied on conventional econometric and time-series approaches, with limited consideration given to the nonlinear interactions among macroeconomic variables, taxpayer behaviour and administrative factors. Given the increasing availability of large-scale administrative, transactional and macroeconomic datasets, machine learning methods have gained traction as promising alternatives in various forecasting domains, including real estate prices, foreign exchange rates, electricity demand and commodity prices, and are increasingly being applied to tax policy and fiscal forecasting (Lee et al., 2025). Improving the accuracy of Domestic VAT forecasts would strengthen budget credibility, enhance revenue mobilisation strategies and contribute to Ghana’s broader objective of achieving fiscal sustainability.
+
+This study applied and evaluated machine learning models for forecasting Domestic Value Added Tax revenue in Ghana. Four models were applied, namely the Least Absolute Shrinkage and Selection Operator (LASSO), Support Vector Regression (SVR), Extreme Gradient Boosting (XGBoost) and a one-dimensional Convolutional Neural Network (1D-CNN), and their forecasts were compared with those of Naive, Seasonal Naive and ARIMAX benchmarks. The study used 192 monthly observations from January 2010 to December 2025, with the exchange rate, the Treasury bill rate, the Composite Index of Economic Activity (CIEA) and inflation as the main macroeconomic indicators.
+
+## 1.2 Problem Statement {#s1-2 .unnumbered .unlisted}
+
+Domestic Value Added Tax (VAT) constitutes one of the most important sources of internally generated revenue for the Government of Ghana, consistently contributing between 20% and 30% of total tax revenue (Ghana Revenue Authority, 2024). Accurate forecasting of Domestic VAT revenue is therefore essential for effective fiscal planning, budget preparation, public expenditure management and macroeconomic policy formulation. Reliable revenue forecasts provide policy makers and fiscal planners with the data needed to guide borrowing decisions, use accumulated reserves, or specify monetary measures to balance the budget (Kithure, 2021). Conversely, inaccurate forecasts may result in high unexpected deficits, inefficient resource allocation and increased borrowing requirements (Sabaj and Kahveci, 2018).
+
+Despite the strategic importance of Domestic VAT, accurately forecasting its revenue has become increasingly challenging in Ghana. Macroeconomic volatility, a large informal sector and structural change create complex and dynamic relationships that continuously alter the Domestic VAT base. Furthermore, administrative issues such as delays in the implementation of digital tax systems, increasing deductible VAT claims and changes in tax administration introduce additional uncertainty into revenue collection.
+
+The extent of this forecasting challenge is reflected in the Ghana Revenue Authority (GRA) Annual Report (2024), which reported that although total tax revenue exceeded its annual target by 5.2%, Domestic VAT recorded a negative deviation of 24.3% from its projected target. This significant forecasting gap demonstrates that existing forecasting approaches may not adequately capture the underlying drivers of Domestic VAT performance, thereby reducing the reliability of revenue projections used for national budgeting and fiscal policy decisions.
+
+Traditionally, tax revenue forecasting has relied on statistical and econometric techniques such as the Autoregressive Integrated Moving Average (ARIMA) model and linear regression models. While these approaches have proven useful for modelling historical trends and seasonal variations, they are generally based on assumptions of linearity and stationarity. Consequently, they often struggle to model the complex nonlinear interactions, structural breaks and rapidly changing economic conditions that characterise modern tax systems. As Ghana’s economy becomes increasingly data-rich and economically dynamic, the limitations of these conventional forecasting models become more pronounced.
+
+Recent advances in machine learning have demonstrated considerable potential for improving forecasting accuracy by automatically learning complex nonlinear relationships from large-scale datasets. Algorithms such as Random Forests, Artificial Neural Networks, Long Short-Term Memory (LSTM) networks and Gradient Boosting Machines have consistently outperformed traditional statistical models in various forecasting applications, including financial and tax revenue prediction. However, despite these advances, empirical evidence on the application of machine learning techniques to forecasting Domestic VAT revenue in Ghana remains limited. Existing studies have largely focused on aggregate tax revenue or employed traditional econometric methods, leaving a significant gap in the application and comparative evaluation of machine learning models for Domestic VAT forecasting within the Ghanaian context.
+
+This knowledge gap limits the availability of evidence-based forecasting tools capable of supporting the Ghana Revenue Authority and policymakers in improving revenue planning and fiscal decision-making. Therefore, there is a need to investigate whether machine learning models can provide more accurate and reliable forecasts of Domestic VAT revenue than conventional forecasting techniques. Addressing this gap will contribute to improved revenue forecasting, enhanced budget credibility and more effective domestic resource mobilisation in Ghana.
+
+## 1.3 Aim and Objectives of the Study {#s1-3 .unnumbered .unlisted}
+
+The main aim of this study was to apply and evaluate machine learning models for forecasting Domestic Value Added Tax (VAT) revenue in Ghana and to compare their predictive performance with conventional time-series forecasting techniques, in order to improve the accuracy and reliability of revenue forecasts for fiscal planning and policy formulation.
+
+## 1.4 Research Objectives {#s1-4 .unnumbered .unlisted}
+
+The specific objectives of this study were:
+
+1. to apply machine learning models (LASSO, SVR, XGBoost and a 1D-CNN) to forecast Domestic VAT revenue using historical VAT and relevant economic indicator data;
+
+2. to compare the forecasting performance of the machine learning models with the conventional benchmarks using appropriate accuracy measures, namely Root Mean Square Error (RMSE), Mean Absolute Error (MAE) and Mean Absolute Percentage Error (MAPE); and
+
+3. to identify and analyse the key macroeconomic and calendar factors that influence Domestic Value Added Tax (VAT) revenue in Ghana.
+
+## 1.5 Research Questions {#s1-5 .unnumbered .unlisted}
+
+The study sought to answer the following research questions:
+
+1. How accurately can machine learning models forecast Domestic VAT revenue in Ghana?
+
+2. Which forecasting model provides the highest predictive accuracy for Domestic VAT revenue in Ghana?
+
+3. What macroeconomic and calendar factors influence Domestic Value Added Tax (VAT) revenue in Ghana?
+
+## 1.6 Significance of the Study {#s1-6 .unnumbered .unlisted}
+
+This study contributed to knowledge, policy and practice in several important ways.
+
+First, the study contributed to the growing body of literature on the application of machine learning techniques to tax revenue forecasting. While numerous studies have applied traditional econometric and statistical models to revenue forecasting, relatively few have investigated the use of machine learning models for forecasting Domestic Value Added Tax (VAT) revenue in Ghana. By evaluating and comparing the predictive performance of machine learning algorithms with conventional forecasting techniques, the study provided empirical evidence on the suitability of these models within the Ghanaian context.
+
+Second, the findings are beneficial to the Ghana Revenue Authority (GRA). More accurate forecasts of Domestic VAT revenue can improve revenue planning, target setting, compliance monitoring and resource allocation. Improved forecasting models can also assist the Authority in identifying potential revenue shortfalls early enough to implement appropriate policy or administrative interventions.
+
+Third, the findings support policymakers, particularly the Ministry of Finance and other government institutions responsible for fiscal planning and budgeting. Reliable revenue forecasts are essential for preparing realistic national budgets, managing public expenditure, improving debt sustainability and ensuring effective macroeconomic policy implementation. Enhanced forecasting accuracy can therefore contribute to improved fiscal discipline and economic stability.
+
+Fourth, the study demonstrated the practical application of machine learning and big data analytics in public finance. As tax administrations increasingly adopt digital technologies and data-driven decision-making, this research provided an example of how artificial intelligence techniques can be integrated into revenue forecasting and tax administration. The findings may encourage greater adoption of advanced analytical methods within Ghana’s public sector.
+
+Finally, this study can serve as a useful reference for future researchers and postgraduate students interested in tax administration, public finance, machine learning and revenue forecasting. It may also stimulate further research into the application of artificial intelligence techniques to forecasting other tax handles such as Corporate Income Tax, Pay-As-You-Earn (PAYE), Import VAT and Customs duties.
+
+## 1.7 Limitations of the Study {#s1-7 .unnumbered .unlisted}
+
+Despite its contributions, this study was subject to several limitations.
+
+First, the accuracy of the forecasting models depended largely on the quality, completeness and availability of historical Domestic VAT and macroeconomic data. Missing observations, inconsistencies in administrative records and data quality issues could affect model performance and the reliability of the forecasts.
+
+Second, access to detailed taxpayer-level administrative data was restricted because of confidentiality and data protection regulations. Consequently, the study relied on aggregated Domestic VAT revenue data and publicly available macroeconomic indicators, which limited the ability of the models to capture taxpayer-specific behavioural patterns.
+
+Third, the forecasting models were based on historical relationships between Domestic VAT revenue and the selected explanatory variables. Unexpected economic shocks, policy changes, natural disasters, pandemics or significant tax reforms occurring outside the study period may alter these relationships and reduce the predictive accuracy of the models when applied to future periods.
+
+Fourth, although machine learning algorithms often provide superior predictive performance, some models operate as “black-box” systems with limited interpretability. Consequently, while the study sought to improve forecasting accuracy, explaining the underlying relationships between predictor variables and Domestic VAT revenue may be more challenging than with traditional econometric models.
+
+Finally, the findings of this study were specific to Ghana’s tax administration and macroeconomic environment. As tax structures, compliance levels and economic conditions differ across countries, the results may not be directly generalisable to other jurisdictions without appropriate contextual adaptation. Further limitations arising from the sample size and the design of the forecasting experiment are discussed in Chapter 5.
+
+## 1.8 Organisation of the Study {#s1-8 .unnumbered .unlisted}
+
+The study is organised into five chapters. Chapter 1 introduces the study, states the problem, aim, objectives and research questions, and outlines the significance and limitations of the study. Chapter 2 reviews the literature on taxation, VAT in Ghana, the determinants of Domestic VAT revenue, and traditional and machine learning forecasting methods, and presents the research gap and the conceptual framework. Chapter 3 describes the research methodology, including the data, the forecasting models and the evaluation measures. Chapter 4 presents the data analysis and discusses the results. Chapter 5 summarises the findings, states the conclusions and recommendations, and suggests areas for further research.
+
+# CHAPTER 2 `<w:r><w:br/></w:r>`{=openxml}`\\`{=latex} LITERATURE REVIEW {#ch2 .unnumbered .unlisted}
+
+## 2.1 Introduction {#s2-1 .unnumbered .unlisted}
+
+This chapter reviews the literature that underpins the study. It begins with the concept of taxation and the place of Value Added Tax (VAT) in the Ghanaian tax system, and then examines the determinants of Domestic VAT revenue and the theory that underpins revenue forecasting. It next reviews traditional and machine learning forecasting methods and their application to tax revenue, including studies conducted in Ghana. The chapter ends by identifying the research gap and presenting the conceptual framework that guides the study.
+
+## 2.2 Concept of Taxation {#s2-2 .unnumbered .unlisted}
+
+Taxation serves as the primary mechanism for domestic revenue mobilisation, providing the financial foundation necessary for governments to fund public expenditures, basic infrastructure, and essential social services such as health and education (Kithure, 2021). Within the literature, the concept is often framed through the “4Rs” (revenue, redistribution, repricing, and representation), illustrating that tax is not merely a collection tool but a vital instrument for addressing income inequality and fostering higher quality governance (Cobham, 2005; Jenkins et al., 2000). Beyond its fiscal function, taxation is characterised as a critical component of the social contract, where the obligation of citizenship is intrinsically linked to the legitimacy of state institutions and the perceived fairness of the system (Kummari, 2023; Bird et al., 2008). Consequently, in developing nations, a failure by the state to fulfil its side of the contract can erode taxpayer morality and encourage evasion (Streimikiene et al., 2018).
+
+The literature presents a clear tension regarding the economic impact of tax policy. On one hand, well-structured taxation is viewed as a deterrent to fiscal instability and a promoter of sustainable development (Bird et al., 2008). On the other hand, scholars warn that excessive or poorly designed taxes can trigger inflationary pressures, reduce business competitiveness, and create significant work disincentives (Bird et al., 2008). In many developing economies, this challenge is compounded by the distinction between “tax capacity” and “tax effort,” where institutional weaknesses, such as corruption and a lack of accountability, frequently prevent nations from reaching their full revenue potential (Bird et al., 2008; Kithure, 2021). To mitigate these instabilities, there has been a global shift toward Value Added Tax (VAT), which is now characterised as the “workhorse” of modern taxation due to its efficiency, broad base, and relative stability compared to direct taxes (Jenkins et al., 2000; Ofori et al., 2021).
+
+In the context of Ghana, VAT has become a pivotal source of government revenue, consistently contributing between 20% and 30% of total collections since its inception (Ofori et al., 2021). However, maintaining this revenue stream requires high levels of administrative efficiency and taxpayer compliance, both of which are currently challenged by a large informal sector and systemic leakages. Reliable revenue projections are therefore essential to ensure fiscal discipline and avert deficits. As traditional econometric models often fail to capture the non-linear complexities and sudden economic shifts inherent in the Ghanaian market, there is a clear academic and practical imperative for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, which can process large volumes of data to provide the precision necessary for effective national budgeting (Ofori et al., 2021; Lee et al., 2025).
+
+### 2.2.1 Value Added Tax (VAT) {#s2-2-1 .unnumbered .unlisted}
+
+Value-Added Tax (VAT) has emerged as the “workhorse” of modern fiscal systems, adopted by over 120 countries and contributing approximately one-quarter of global government revenue. Characterised as a multi-stage consumption tax, its efficiency stems from the invoice-credit mechanism, which allows registered businesses to offset input taxes against output liabilities. While developed OECD nations have historically relied on VAT for significant revenue yields, developing economies increasingly utilise it to broaden the tax base and mitigate dependencies on volatile trade taxes. However, the literature reveals a tension regarding design: while simple, single-rate structures are recommended to reduce compliance costs and administrative complexity, many jurisdictions adopt multiple rates or low registration thresholds, which can erode trust and incentivise evasion among Small and Medium Enterprises (SMEs).
+
+In Ghana, VAT is a pivotal revenue handle, consistently accounting for between 20% and 30% of total tax collections. The nation’s experience underscores the importance of administrative design; the 1995 repeal of VAT, just months after its inception, was largely attributed to inadequate preparation and an inappropriately low threshold. Contemporary reforms, including the 2023 rate increase to 15% and the rollout of the E-VAT/e-invoicing system, reflect a strategic shift toward digital “e-administration” to curb leakages and formalise the informal sector. Despite these advancements, Ghanaian tax authorities face persistent challenges from macroeconomic volatility, including inflationary pressures and currency depreciation, which unpredictably alter consumer purchasing power and the resulting VAT base.
+
+Methodologically, the literature presents a clear shift from traditional to advanced forecasting. While conventional econometric approaches like ARIMA and the Holt linear trend have provided stable baseline projections for the Ghana Revenue Authority (GRA), they often fail to capture the non-linear dynamics and structural shifts induced by global shocks. Recent empirical evidence suggests that machine learning (ML) architectures, such as Long Short-Term Memory (LSTM) and Neural Network Autoregression (NNAR), significantly outperform linear models in volatile environments, achieving forecasting accuracies as high as 98.9% in neighbouring contexts. Consequently, there is a compelling academic and policy-driven mandate for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, as these tools offer the precision and resilience necessary to maintain fiscal discipline and ensure sustainable national budgeting.
+
+### 2.2.2 Domestic VAT in Ghana {#s2-2-2 .unnumbered .unlisted}
+
+The Ghana Revenue Authority (GRA) administers a diverse range of tax handles through its two main operational divisions: the Domestic Tax Revenue Division (DTRD) and the Customs Division (CD). These encompass direct taxes such as Pay-As-You-Earn (PAYE), Corporate Income Tax (CIT), Mineral Royalties, and Rent Tax, as well as indirect taxes including Domestic Value Added Tax (VAT), Excise Duty, the Communications Service Tax (CST), and various statutory levies. The Customs Division is responsible for taxes and duties associated with international trade, including import duties, import VAT, and petroleum-related levies. Although these tax categories collectively contribute to Ghana’s domestic revenue mobilisation, this study focuses specifically on Domestic Value Added Tax (VAT). Domestic VAT remains one of the country’s most significant and stable sources of internally generated revenue, contributing a substantial proportion of total tax collections while being highly responsive to changes in economic activity, consumption patterns, and tax administration. Given its fiscal importance and the increasing complexity of accurately forecasting its performance, Domestic VAT provides an appropriate focus for investigating the application of machine learning techniques to improve revenue forecasting in Ghana.
+
+Domestic Value Added Tax (VAT) serves as a fundamental “workhorse” for revenue mobilisation in Ghana, consistently contributing between 20% and 30% of the nation’s total tax collections. Unlike Import VAT, which is collected at the point of entry by the Customs Division based on Cost, Insurance, and Freight (CIF) values, Domestic VAT is levied on the internal consumption of goods and services through an invoice-credit mechanism. Ghana’s experience with VAT is historically unique; the tax was introduced at 17.5% in 1995 but repealed within months due to inadequate preparation and a low registration threshold, only to be successfully reintroduced at 10% in 1998. Current administrative strategies, such as the E-VAT/e-invoicing system and the 2023 rate increase to 15%, reflect a broader digital transformation initiative aimed at closing the “VAT gap” and curbing systemic leakages. However, the literature identifies a significant tension between VAT’s potential and its actual yield in developing contexts. While some scholars argue that VAT is inherently stable, others highlight that macroeconomic volatility, specifically Ghana’s 23.8% headline inflation and currency depreciation, compresses real incomes and erodes the VAT base. Furthermore, the high level of informality in the Ghanaian labour market (approximately 85%) creates a persistent compliance friction that traditional administrative measures struggle to address.
+
+Methodologically, the literature reveals a critical shift in how these revenues are projected. Existing studies in Ghana have largely relied on conventional econometric tools such as ARIMA with Intervention or the Holt linear trend method. While these models provide a stable baseline, they are increasingly criticised for their linear assumptions, which fail to capture the nonlinear dynamics and structural shifts induced by global economic shocks or sudden policy changes. Recent empirical findings from neighbouring jurisdictions suggest that machine learning (ML) architectures, particularly Long Short-Term Memory (LSTM) and Neural Network Autoregression (NNAR), offer superior resilience and accuracy in volatile environments. Consequently, there is a clear academic and policy mandate for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, as these advanced analytical tools provide the precision necessary for maintaining fiscal discipline and sustainable national budgeting.
+
+### 2.2.3 Determinants of Domestic VAT Revenue {#s2-2-3 .unnumbered .unlisted}
+
+The determination of Domestic Value Added Tax (VAT) revenue is a multifaceted phenomenon governed by a complex interplay of macroeconomic drivers, structural tax design, and administrative efficiency. At its most fundamental level, the literature identifies Gross Domestic Product (GDP) and private consumption expenditure as the primary determinants of the tax base. However, the role of macroeconomic volatility presents a significant point of contention in recent research. While classical theory suggests that moderate inflation can expand the nominal tax base, empirical evidence from emerging economies like Ghana indicates that hyperinflationary pressures (reaching 23.8% in 2024) can compress real incomes and erode consumer purchasing power, ultimately leading to a decline in VAT yields. Similarly, currency depreciation influences revenue by increasing the local-currency cost of imported inputs, which may either swell nominal receipts or trigger a “VAT base erosion” as sales move into informal, cash-based channels to avoid frequent price adjustments.
+
+Structural and legal factors also play a critical role in defining revenue potential. The scope of the tax is heavily influenced by registration thresholds, standard rates, and the proliferation of exemptions or zero-rated goods. While some scholars advocate for simple, single-rate structures to minimise administrative complexity, cross-country analyses suggest that a wider range between highest and lowest rates can sometimes be associated with higher revenue performance, provided the administration is sufficiently sophisticated. This highlights the importance of administrative efficiency and digital transformation. In jurisdictions like Ghana, the rollout of the E-VAT and e-invoicing systems is characterised as a vital determinant for closing the “VAT gap” and curbing systemic leakages caused by a large informal sector, which accounts for approximately 85% of total employment.
+
+Finally, the literature emphasises that taxpayer behaviour, influenced by compliance costs, taxpayer perceptions, and moral attitudes, serves as a decisive microeconomic determinant of revenue. Because these determinants exhibit nonlinear interactions and are frequently disrupted by global economic shocks, traditional linear forecasting methods have proven inadequate. There is, therefore, a critical academic and policy-driven imperative for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, as these advanced architectures can process the complex, multi-dimensional data necessary to achieve the high-precision projections required for sustainable national budgeting.
+
+### 2.2.4 Theory Underpinning Revenue Forecasting {#s2-2-4 .unnumbered .unlisted}
+
+Revenue forecasting is theoretically grounded in the measurement of tax buoyancy and income elasticity, which evaluate the responsiveness of tax yields to changes in Gross Domestic Product (GDP) and discretionary policy shifts. While Optimal Taxation theory emphasises efficiency and neutrality to minimise economic distortions, the practical application of forecasting often relies on sequence or time-lag theory. This theory posits that economic movements occur successively rather than simultaneously, allowing leading indicators to serve as predictors for related fiscal series. Furthermore, some scholars incorporate the Quantity Theory of Money, suggesting that while inflation can nominally expand the tax base, hyperinflationary pressures can compress real incomes and erode the actual yield of consumption-based taxes.
+
+A methodological divide between conditional and unconditional paradigms is revealed. Conditional or “causal” models assume that revenue is a function of specific macroeconomic drivers, such as trade openness, inflation, and sectoral composition, and are often structured as econometric regressions. Conversely, unconditional models exploit the random walk hypothesis or the autocorrelative nature of time-series data, projecting future values based on the “inertia” and historical patterns of the revenue series itself. A critical tension exists between static models, which treat tax bases as predetermined, and dynamic models, which incorporate complex feedback loops and behavioural responses to administrative changes.
+
+More recently, the theoretical focus has shifted toward nonlinear dynamics and pattern identification. Traditional models are frequently criticised for their linear assumptions, which fail to capture the structural shifts induced by global shocks or the asymmetric impacts of policy changes on taxpayer compliance. In response, Machine Learning (ML) theory, utilising architectures such as Neural Networks (ANN), Long Short-Term Memory (LSTM), and Random Forests, posits that complex, multidimensional interactions can be learned through iterative training without the restrictive parametric assumptions of classical statistics. Within the context of Ghana, where revenue mobilisation is constrained by a large informal sector and significant macroeconomic volatility, traditional linear models have often proven “inadequate or deficient”. Consequently, there is a clear imperative for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, as these advanced frameworks provide the precision and resilience necessary to maintain fiscal discipline and ensure sustainable national budgeting.
+
+The time-lag idea was the one most directly used in this study. Because the values of the economic indicators for a month were not known when that month’s VAT was forecast, every predictor in the models was taken from earlier months, so that past movements in VAT, economic activity and the exchange rate were used as leading indicators of the next month’s VAT.
+
+## 2.3 Machine Learning in Revenue Forecasting {#s2-3 .unnumbered .unlisted}
+
+This section turns to the forecasting side of the problem. It looks first at how forecasting has traditionally been done, then at what machine learning adds to that picture, and why a growing number of revenue authorities and researchers are turning to it.
+
+### 2.3.1 Overview of Machine Learning {#s2-3-1 .unnumbered .unlisted}
+
+Machine learning is a branch of artificial intelligence in which a computer learns patterns directly from data rather than following rules that a programmer writes out in advance. Instead of being told “if inflation rises by X, then VAT revenue falls by Y,” a machine learning model is given historical examples of inputs and outcomes and works out the relationship for itself. Once trained, it can apply what it has learned to new, unseen data. In a content analysis of one hundred published machine learning studies, Kamiri and Mariga (2021) found that most researchers now combine more than one algorithm to solve a single problem, and that the quantitative, experimental study design has become the standard way of testing whether a model actually works. This matters for the present study because it confirms that comparing several algorithms against each other, rather than relying on just one, is the accepted way of establishing which model performs best for a given forecasting problem.
+
+Broadly, machine learning is grouped into supervised learning, where the model is trained on labelled historical data with a known outcome (for example, past monthly VAT figures), unsupervised learning, which looks for hidden structure in data without a labelled outcome, and reinforcement learning, which learns through trial and reward. Revenue forecasting is a supervised learning problem: the historical VAT series and its associated economic indicators are the labelled data, and the model is trained to predict the next value in the series. Algorithms commonly used for this purpose include decision trees, random forests, gradient boosting methods such as XGBoost, support vector machines, and artificial neural networks, including their time-series variant, the Long Short-Term Memory (LSTM) network. Akinrinola et al. (2024) note that what makes these methods attractive for tax data specifically is their ability to pick up non-linear and interacting relationships among variables, something that becomes important where revenue is driven by many factors at once rather than a single, steady trend.
+
+### 2.3.2 Traditional Forecasting Methods {#s2-3-2 .unnumbered .unlisted}
+
+Before machine learning entered the picture, revenue forecasting relied almost entirely on statistical and econometric techniques. Jenkins et al. (2000), in their widely cited handbook on tax analysis and revenue forecasting, describe the methods that most revenue authorities have historically used: simple trend extrapolation, elasticity-based forecasting that links revenue growth to GDP growth, regression models built around known tax bases, and time-series methods such as the Autoregressive Integrated Moving Average (ARIMA) model and exponential smoothing. These techniques share one core assumption: that the future will, in a fairly predictable way, resemble a continuation or a controlled adjustment of the past.
+
+This assumption has been tested directly on VAT data from Kenya and from Ghana. Kithure et al. (2019) modelled the volatility of Kenya’s VAT revenue using an ARIMA(3,0,3) specification, chosen because it produced the lowest AIC and BIC values among the models tested, and used it to compute value-at-risk measures for revenue planning. In a related study for the Kenya Revenue Authority, Kithure (2021) again applied time-series models to forecast VAT collections, underlining how central this class of method has become to day-to-day revenue planning in East Africa. Closer to home, Ofori et al. (2021) forecasted Ghana’s monthly VAT revenue from 2002 to 2019 using an ARIMA model with intervention terms, compared against the Holt linear trend method. They found that the ARIMA-with-intervention model was more accurate than both the Holt method and the Ghana Revenue Authority’s own in-house forecasting model over the 2017 to 2019 period. This is a significant finding for the present study: it shows that, as of the most recent published work, Ghana’s VAT forecasting practice, whether academic or institutional, has not moved beyond traditional statistical and time-series methods.
+
+The limitation of these traditional approaches is well documented. They tend to assume a linear or near-linear relationship between revenue and its drivers, which makes them reliable when the economy is stable but less so when there are structural breaks, such as a change in the VAT rate, a rebasing of the economy, a pandemic-driven shock, or a shift in the size of the informal sector. They also generally work best with a single time series or a small number of explanatory variables, whereas VAT revenue in practice is shaped by many factors acting together, including import volumes, inflation, exchange rates, compliance behaviour, and seasonal consumption patterns. This gap in flexibility is precisely where machine learning is proposed as a complement, and in some cases an alternative, to the traditional toolkit.
+
+### 2.3.3 Machine Learning Forecasting Techniques {#s2-3-3 .unnumbered .unlisted}
+
+A number of machine learning techniques have been applied to forecasting and prediction problems that resemble VAT revenue forecasting. Decision trees and random forests build forecasts by splitting historical data into groups based on the values of predictor variables, and then averaging outcomes within each group; they are valued because they handle non-linear relationships well and are relatively easy to interpret. Gradient boosting methods, particularly XGBoost, build on this idea by training many small trees in sequence, each one correcting the errors of the last, and have become one of the best-performing algorithms across many prediction tasks, including tax-related ones. Support vector machines find the boundary or trend line that best separates or fits the data, and are useful when the number of observations is limited. Artificial neural networks, loosely modelled on how the brain processes information, are capable of learning very complex patterns, and their time-series variant, the LSTM network, is designed specifically to remember patterns over time, which makes it well suited to monthly revenue data with seasonal cycles.
+
+Two further techniques are relevant to the present study. The Least Absolute Shrinkage and Selection Operator (LASSO) is a linear regression with a penalty that shrinks the coefficients of weak predictors, setting some exactly to zero (Tibshirani, 1996); it is a natural choice where the number of observations is small relative to the number of predictors, and it shows which predictors matter. The one-dimensional Convolutional Neural Network (1D-CNN) passes small filters along a sequence of past observations to pick up local patterns (LeCun et al., 1998), and offers a lighter alternative to the LSTM for sequence data.
+
+Murorunkwere et al. (2023), working with tax data from the Rwanda Revenue Authority, tested six supervised algorithms, namely Artificial Neural Networks, Logistic Regression, Decision Trees, Random Forest, GaussianNB, and XGBoost, and found that the Artificial Neural Network produced the most robust results across their evaluation metrics. Although their focus was tax fraud rather than revenue forecasting, the study is instructive for two reasons: it confirms that these algorithms transfer well to African tax administration data, and it demonstrates the value of testing several algorithms against each other rather than settling on one in advance.
+
+Not every comparison favours machine learning, however, and the literature is careful to say so. Wong and La (2024), forecasting payroll tax and land transfer duty revenue for the Victorian government in Australia, compared nine forecasting methods spanning traditional econometric models and machine learning algorithms. They found that machine learning did not improve the forecast for payroll tax revenue, which follows a fairly stable trend, but it did outperform simpler methods for land transfer duty, a more volatile revenue line that is more sensitive to economic swings. Their conclusion, that machine learning tends to add the most value where a revenue stream is volatile and influenced by many shifting factors, is a useful benchmark for VAT, which in Ghana is itself sensitive to trade volumes, inflation, and seasonal consumption. Akinrinola et al. (2024), in a systematic review of the ML and tax prediction literature, reach a similar conclusion: the quality and structure of the underlying data matters as much as the choice of algorithm, and no single technique performs best in every setting.
+
+This is why the present study evaluated more than one algorithm against Ghana’s monthly VAT data rather than assuming, in advance, which one would perform best. The trade-off is also worth stating plainly: machine learning models generally need more data and more careful feature engineering than traditional statistical models, and they can be harder for policy analysts to interpret. With fewer than 200 monthly observations available, the study therefore selected a mix of methods suited to small samples (LASSO and SVR), a tree-based method (XGBoost) and a small neural network (1D-CNN), and tested them against, rather than instead of, the ARIMA-type models already used in Ghana.
+
+### 2.3.4 Machine Learning Applications in Tax Forecasting {#s2-3-4 .unnumbered .unlisted}
+
+Outside Ghana, the use of machine learning for tax and VAT revenue prediction is growing, though it remains concentrated in a handful of countries. In Indonesia, Sihotang et al. (2025) used a regression-based machine learning approach to project 2025 VAT revenue, examining how the rupiah exchange rate, inflation, and economic growth would interact with a planned increase in the VAT rate to 12 percent. Their study is a useful example of combining macroeconomic indicators with a machine learning model to produce a policy-relevant forecast, rather than treating the VAT series in isolation. Also in Indonesia, Febriminanto and Wasesa (2022) built a machine learning model for the Directorate General of Taxes using internal taxpayer transaction data, described in their study as “trigger data,” to predict tax revenue potential at the level of individual tax offices. Their work shows that machine learning can be applied not only to national, aggregate revenue series but also to more granular administrative data, which points to a wider range of data sources that a revenue authority such as the Ghana Revenue Authority could eventually draw on.
+
+In Rwanda, Murorunkwere et al. (2023) applied supervised machine learning to tax administration data to identify patterns associated with tax fraud, working directly with VAT-related records. While their objective was fraud detection rather than revenue forecasting, the study remains one of the clearest demonstrations that African tax data, often assumed to be too thin or too irregular for machine learning, can in fact support these models effectively when properly structured. In Australia, Wong and La (2024) offered a more cautious, comparative account, showing that machine learning’s advantage over traditional econometric forecasting depends on how volatile the specific tax line is.
+
+Taken together, these studies show a clear pattern: the application of machine learning to VAT and tax revenue forecasting is well underway in Southeast Asia, East Africa, and Australia, but almost entirely absent from Ghana and from West Africa more broadly. The most recent and most relevant Ghanaian study, Ofori et al. (2021), forecasted monthly VAT revenue using ARIMA with intervention and the Holt linear trend method only, without testing any machine learning algorithm against them. Given that Ghana’s VAT revenue is shaped by many of the same volatile, interacting factors (trade flows, inflation, exchange rate movements, and seasonal consumption) that Wong and La (2024) identify as the conditions under which machine learning adds the most value, this represents a genuine gap in the literature. It is this gap that the present study set out to address, by testing machine learning algorithms against Ghana’s monthly domestic VAT revenue data and comparing their performance to the traditional methods already established in the local literature.
+
+### 2.3.5 Studies Conducted in Ghana {#s2-3-5 .unnumbered .unlisted}
+
+Empirical inquiry into Ghana’s fiscal landscape reveals a critical transition from traditional econometric modelling toward advanced computational analytics, driven by the need to navigate a volatile macroeconomic environment. Historically, the literature on Ghanaian tax forecasting was characterised by a “dearth of studies,” with early research focusing on the legislative causes of revenue failure and the descriptive impact of policy shifts. For instance, while Terkper (1996) and Prichard (2010) explored the structural and political-economy factors behind the initial 1995 VAT repeal and subsequent successful reintroduction, contemporary researchers like Antwi et al. (2012) and Nartey (2011) shifted focus toward the quantitative impact of VAT rate changes on total yields. These studies collectively established that while VAT is a “workhorse” for the Ghana Revenue Authority (GRA), its efficiency is frequently undermined by systemic leakages and a large informal sector, which Amanamah (2016) and Abiire et al. (2020) identify as a major constraint to voluntary compliance and tax education efforts.
+
+Methodologically, the Ghanaian literature presents a clear evolution. Ofori et al. (2021) provided a baseline for domestic VAT forecasting by demonstrating that an ARIMA model with Intervention outperformed the Holt linear trend, specifically because it could account for the 2014 VAT rate increase. However, this reliance on linear assumptions has been challenged by recent findings. Agbenyega et al. (2022) critiqued the GRA’s traditional reliance on “inadequate or deficient” econometric models, such as the GDP-based and microsimulation methods, which fail to capture the nonlinear dynamics of time-series data. By applying machine learning techniques to the Customs Division, Agbenyega et al. (2022) found that Neural Network Autoregression (NNAR) and Bayesian Structural Time Series (BSTS) models significantly outperformed traditional ARIMA variants, reflecting a broader global trend where ML architectures provide superior resilience during economic shocks.
+
+Despite these advancements in the customs sector, a significant gap remains in the literature regarding the application of these novel techniques to domestic collections. Current GRA reports highlight that while industrial momentum and digital initiatives like e-invoicing have bolstered yields, macroeconomic pressures, including a 23.8% inflation rate and significant currency depreciation, continue to disrupt the precision of official projections. Consequently, there is a compelling academic and policy-driven mandate for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, as these advanced frameworks offer the necessary precision to maintain fiscal discipline and ensure sustainable resource allocation in an increasingly complex economic climate.
+
+## 2.4 Research Gap {#s2-4 .unnumbered .unlisted}
+
+Despite the pivotal role of tax revenue in national development, the academic literature reveals a persistent “dearth of studies” on tax forecasting in emerging economies compared to broader macroeconomic indicators like Gross Domestic Product (Kithure, 2021). This research gap is fundamentally methodological; for decades, tax administrations have relied upon traditional econometric and time-series approaches, such as ARIMA and linear regression, which are increasingly characterised as “inadequate or deficient” due to their restrictive linear assumptions and inability to handle non-stationary data (Thayyib et al., 2023; Agbenyega et al., 2022; Lee et al., 2025). While a burgeoning body of research from jurisdictions like Nigeria, Indonesia, and Turkey suggests that machine learning (ML) architectures, including Long Short-Term Memory (LSTM), Artificial Neural Networks (ANN), and Random Forest, offer superior predictive precision by capturing complex non-linear dynamics, their superiority is not absolute (Ajisola, 2023; Akinrinola et al., 2024; Jayanti et al., 2025; Lee et al., 2025; Şengüler and Kara, 2025).
+
+A critical tension exists regarding the effectiveness of these novel tools. Some findings indicate that traditional or hybrid models may remain more robust when dealing with the limited data regularity typical of developing markets, while other scholars argue that data pre-processing steps are ultimately more decisive for forecasting accuracy than the choice of the model itself (Jayanti et al., 2025; Larson and Overton, 2024; Lee et al., 2025). Furthermore, there is a distinct geographic and institutional imbalance, as advanced ML applications remain “limitedly implemented and reported in practice by developing economies” (Kummari, 2023).
+
+In the specific context of Ghana, a significant empirical gap exists between different revenue collection divisions. While recent innovative inquiries have successfully applied Neural Network Autoregression (NNAR) and Bayesian Structural Time Series (BSTS) to model Customs revenue, Domestic Value Added Tax (VAT) projections remain largely reliant on conventional “in-house” methods or simple trend interventions (Ofori et al., 2021; Agbenyega et al., 2022). Although Domestic VAT is a “workhorse” for the Ghana Revenue Authority, contributing significantly to the fiscus, its forecasting has not been rigorously tested against advanced computational models. Consequently, there is a compelling mandate for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, as this research bridges the gap between advanced computational theory and local fiscal practice to provide the predictive resilience necessary for navigating Ghana’s volatile economic landscape.
+
+## 2.5 Conceptual Framework {#s2-5 .unnumbered .unlisted}
+
+The conceptual framework of the study is shown in Figure 2.1. The variable to be forecast was monthly Domestic VAT revenue. Drawing on the determinants discussed in Section 2.2.3 and on the time-lag theory in Section 2.2.4, the predictors were the past changes in VAT itself, the exchange rate, the Treasury bill rate, economic activity, inflation, and calendar effects. Gross Domestic Product, the usual measure of the tax base, is not published monthly, so the Composite Index of Economic Activity (CIEA) was used as a monthly measure of economic activity. All predictors were taken from earlier months, because the values for the month being forecast are not yet known when the forecast is made.
+
+The prepared data were passed to two groups of forecasting methods. The benchmarks were the Naive, Seasonal Naive and ARIMAX forecasts, which represent the conventional time-series approach. The machine learning models were LASSO, SVR, XGBoost and a 1D-CNN, which can capture non-linear relationships. All models were estimated on the earlier part of the data and tested on the last 24 months, and their forecasts were compared using RMSE, MAE and MAPE. The result was a one-month-ahead forecast of Domestic VAT revenue in GHS million, together with a ranking of the models.
+
+![**Figure 2.1.** Conceptual framework of the study.](figs/fig2_1.png){#fig-2-1 width=85%}
+
+## 2.6 Chapter Summary {#s2-6 .unnumbered .unlisted}
+
+In summary, the literature underscores that taxation serves as the fundamental mechanism for fiscal stability, requiring precise revenue forecasting to facilitate efficient resource allocation and prevent structural budget deficits. Theoretically, this process is grounded in the measurement of tax buoyancy and the responsiveness of yields to macroeconomic determinants such as Gross Domestic Product (GDP), private consumption, and international trade openness. Historically, tax administrations have relied upon traditional econometric and time-series approaches, specifically ARIMA and the Holt-Winters method, which exploit the autocorrelative nature of historical data to project future trends. However, a significant critical tension exists within the literature; while these classical models provide a stable baseline, they are increasingly characterised as “inadequate or deficient” due to their linear assumptions, which fail to capture the nonlinear interactions and sudden structural shifts induced by global volatility and pandemic-level shocks.
+
+Consequently, recent empirical inquiries have shifted toward Machine Learning (ML) architectures, such as Artificial Neural Networks (ANN), Long Short-Term Memory (LSTM), and Neural Network Autoregression (NNAR), which offer superior accuracy in modelling complex, multi-dimensional patterns without the restrictive parametric assumptions of classical statistics. Although some findings suggest that traditional or hybrid models may remain competitive in specific contexts with limited data regularity, the broader evidence from emerging economies like Nigeria, Indonesia, and Albania indicates that ML models significantly reduce forecasting errors. In Ghana, Domestic Value Added Tax (VAT) consistently functions as a revenue “workhorse,” yet its efficiency is challenged by a large informal sector, systemic leakages, and high inflationary pressures. Despite the successful application of novel ML techniques to Ghana’s customs revenue, a methodological gap persists in its application to domestic yields, where traditional tools still predominate.
+
+This synthesis highlights a clear academic and policy-driven imperative for forecasting Domestic Value Added Tax revenue in Ghana using machine learning models, as these advanced frameworks provide the precision and resilience necessary to ensure sustainable national budgeting and long-term fiscal discipline. The next chapter describes how four machine learning models (LASSO, SVR, XGBoost and a 1D-CNN) were applied to this problem and compared with Naive, Seasonal Naive and ARIMAX benchmarks.
+
+# CHAPTER 3 `<w:r><w:br/></w:r>`{=openxml}`\\`{=latex} RESEARCH METHODOLOGY {#ch3 .unnumbered .unlisted}
+
+## 3.1 Introduction {#s3-1 .unnumbered .unlisted}
+
+This chapter explains how the study was carried out. It describes the research design, the data, how the data were prepared, the models that were applied, how the models were tuned and tested, and the measures used to compare them.
+
+## 3.2 Research Design {#s3-2 .unnumbered .unlisted}
+
+The study used a quantitative, predictive design. Four machine learning models were applied to forecast monthly Domestic VAT revenue: LASSO, Support Vector Regression (SVR), Extreme Gradient Boosting (XGBoost) and a one-dimensional Convolutional Neural Network (1D-CNN). Their forecasts were compared with three benchmarks: a Naive forecast, a Seasonal Naive forecast and an ARIMAX model.
+
+All models were treated in the same way. Each was estimated on the earlier part of the data (the training period). Each was then tested on the last 24 months, which were not used for estimation or tuning. Every forecast was a one-step-ahead forecast. This means that the forecast for a month used only information available up to the end of the previous month.
+
+## 3.3 Study Context {#s3-3 .unnumbered .unlisted}
+
+The study focused on Domestic VAT. This is the VAT collected by the Domestic Tax Revenue Division of the Ghana Revenue Authority (GRA) on goods and services consumed inside Ghana. Import VAT, which is collected by the Customs Division, was not part of this study.
+
+## 3.4 Data Sources and Variables {#s3-4 .unnumbered .unlisted}
+
+The study used secondary monthly data from January 2010 to December 2025, which gave 192 monthly observations. Table 3.1 lists the variables. Gross Domestic Product is not published monthly, so the Composite Index of Economic Activity (CIEA) was used as a monthly measure of economic activity.
+
+: **Table 3.1.** Variables used in the study `\label{tbl-3-1}`{=latex}
+
+| Variable | Description | Source |
+|:-----------|:------------------------------------------------------------|:------------------|
+| Domestic VAT | Domestic VAT collected in the month (GHS million). This is the variable to be forecast. | GRA (data request) |
+| FX | Exchange rate (GHS per US dollar) | BoG |
+| T-bill rate | Treasury bill interest rate (%) | BoG |
+| CIEA | Composite Index of Economic Activity, used as a monthly measure of economic activity | BoG |
+| Inflation | Monthly inflation rate (%) | GSS |
+| CPI | Consumer Price Index (used in the exploratory analysis only) | GSS |
+
+## 3.5 Data Preparation {#s3-5 .unnumbered .unlisted}
+
+### 3.5.1 Data checks {#s3-5-1 .unnumbered .unlisted}
+
+The data were checked for missing values, repeated months, gaps in the calendar and impossible values, such as zero or negative VAT or exchange rate. Any missing value would have been filled by drawing a straight line between the neighbouring months. No missing values, repeated months or gaps in the calendar were found, and VAT and the exchange rate were positive in every month, so no value had to be filled in or removed.
+
+Unusual months were found by looking at the monthly percentage change in VAT. A month was flagged if its change was more than three standard deviations away from the average change. Flagged months were kept in the data. They are likely to reflect real events, and removing them would hide the very behaviour that the models were meant to learn.
+
+### 3.5.2 The variable to be forecast {#s3-5-2 .unnumbered .unlisted}
+
+Raw VAT rises steadily over time, so its level in 2024 cannot be compared directly with its level in 2012. Models also find it hard to learn from a series that keeps climbing. For this reason, the models forecast the monthly change in VAT, measured as the change in the natural logarithm:
+
+$$y_t = \log(V_t) - \log(V_{t-1}),$$
+
+where $V_t$ is Domestic VAT in month $t$. This is close to the monthly growth rate. The Augmented Dickey–Fuller (ADF) and KPSS tests were used to check whether the series were stable over time. Once a forecast $\hat{y}_t$ was made, it was changed back to GHS million using
+
+$$\hat{V}_t = V_{t-1}\, e^{\hat{y}_t}.$$
+
+In this way, forecast errors were measured in GHS million, and all models could be compared fairly with the Naive forecast.
+
+### 3.5.3 Predictors {#s3-5-3 .unnumbered .unlisted}
+
+Fifteen predictors were built (Table 3.2). Each one used only values from earlier months. This is because, in practice, the values for the month being forecast are not yet known. Using them would give the models an unfair advantage (data leakage). The exchange rate and CIEA entered as monthly log changes, the T-bill rate as a monthly change in percentage points, and inflation as the monthly inflation rate. The CPI level was used in the exploratory analysis only.
+
+```{=latex}
+\begin{table}[H]
+\centering
+\caption{\textbf{Table 3.2.} Predictors used by the models}\label{tbl-3-2}
+\small\singlespacing\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{@{}p{4.4cm}p{8.8cm}>{\centering\arraybackslash}p{2.4cm}@{}}
+\toprule
+Group & Predictors & Number\\
+\midrule
+Past VAT changes & Change in log VAT 1, 2, 3 and 12 months earlier & 4\\
+Exchange rate & Change in log FX 1 and 2 months earlier & 2\\
+T-bill rate & Change in T-bill rate 1 and 2 months earlier & 2\\
+Economic activity & Change in log CIEA 1 and 2 months earlier & 2\\
+Inflation & Monthly inflation rate 1 and 2 months earlier & 2\\
+Calendar & Sine and cosine of the month, and a December indicator & 3\\
+\midrule
+\textbf{Total} & & \textbf{15}\\
+\bottomrule
+\end{tabular}
+\end{table}
+```
+
+The choice and number of lags followed three simple ideas. First, a forecast made at the end of one month can only use information that is already known, so every predictor was lagged by at least one month (Section 2.2.4). Second, VAT growth tends to react to what happened in the last few months, and a strong month is usually followed by a weaker one (Section 4.2.5). The change in VAT 1, 2 and 3 months earlier therefore covered the most recent quarter, while the change 12 months earlier, together with the December indicator and the sine and cosine of the month, captured the yearly pattern (Section 4.2.3). Third, only 155 months were available for training, so the number of lags was kept small (two for each economic indicator) to avoid adding predictors that the sample could not support and to reduce overfitting.
+
+### 3.5.4 Training and test data {#s3-5-4 .unnumbered .unlisted}
+
+Creating the lags used up the first 13 months, which left 179 monthly rows (February 2011 to December 2025). The first 155 rows (February 2011 to December 2023) formed the training data. The last 24 rows (January 2024 to December 2025) formed the test data. The order of the data was never shuffled, so a model never "saw the future".
+
+## 3.6 Forecasting Models {#s3-6 .unnumbered .unlisted}
+
+In this section, $y_t$ is the monthly change in log VAT, $\mathbf{x}_t$ is the vector of the 15 predictors for month $t$, and $\hat{y}_t$ is the forecast of $y_t$.
+
+### 3.6.1 Benchmark models {#s3-6-1 .unnumbered .unlisted}
+
+The Naive forecast says that next month's VAT will equal this month's VAT. The Seasonal Naive forecast says that a month's VAT will equal the VAT of the same month a year earlier (Hyndman and Athanasopoulos, 2021). In symbols,
+
+$$\hat{V}_t^{\text{Naive}} = V_{t-1}, \qquad \hat{V}_t^{\text{SNaive}} = V_{t-12}.$$
+
+These two forecasts are the lowest bar. A model that cannot beat them adds little.
+
+The ARIMAX model is the main benchmark. It is an ARIMA model, which learns from the past of the series itself, with the lagged exchange rate, T-bill, CIEA and inflation predictors added as external regressors. It can be written as
+
+$$\phi(B)(1-B)^{d}\left(y_t - \boldsymbol{\beta}^{\top}\mathbf{x}_t\right) = \theta(B)\,\varepsilon_t,$$
+
+where $B$ is the backshift operator ($B y_t = y_{t-1}$), $\phi(B)$ and $\theta(B)$ are the autoregressive and moving-average polynomials, $d$ is the order of differencing, $\boldsymbol{\beta}$ holds the regression coefficients and $\varepsilon_t$ is white noise. The model orders, including possible seasonal terms, were chosen automatically on the training data using the corrected Akaike information criterion (Hyndman and Khandakar, 2008). ARIMAX forecasts the same variable as the machine learning models and uses the same predictors, so the comparison was fair.
+
+### 3.6.2 LASSO {#s3-6-2 .unnumbered .unlisted}
+
+LASSO is a linear regression with a penalty that shrinks the coefficients and sets those of weak predictors to exactly zero (Tibshirani, 1996). The coefficients are found by solving
+
+$$\hat{\boldsymbol{\beta}} = \arg\min_{\beta_0,\,\boldsymbol{\beta}} \left\{ \frac{1}{2n}\sum_{t=1}^{n}\left(y_t - \beta_0 - \mathbf{x}_t^{\top}\boldsymbol{\beta}\right)^{2} + \lambda \sum_{j=1}^{p} \left|\beta_j\right| \right\},$$
+
+where $n$ is the number of training months, $p = 15$ is the number of predictors and $\lambda \geq 0$ is the penalty parameter. A larger $\lambda$ removes more predictors. LASSO is a useful starting point for a small sample with many predictors, because it is simple and shows which predictors matter.
+
+### 3.6.3 Support Vector Regression {#s3-6-3 .unnumbered .unlisted}
+
+SVR fits a smooth curve to the data. It ignores errors smaller than a set size $\varepsilon$ and penalises larger errors (Drucker et al., 1997). The fitted curve is $f(\mathbf{x}) = \mathbf{w}^{\top}\phi(\mathbf{x}) + b$, where $\phi(\cdot)$ maps the predictors into a space in which the curve can bend. The weights are found by solving
+
+$$\min_{\mathbf{w},\,b,\,\xi,\,\xi^{*}} \; \frac{1}{2}\|\mathbf{w}\|^{2} + C\sum_{t=1}^{n}\left(\xi_t + \xi_t^{*}\right)$$
+
+subject to $y_t - f(\mathbf{x}_t) \leq \varepsilon + \xi_t$, $\; f(\mathbf{x}_t) - y_t \leq \varepsilon + \xi_t^{*}$ and $\xi_t, \xi_t^{*} \geq 0$. With a radial basis function (RBF) kernel,
+
+$$K(\mathbf{x}_i, \mathbf{x}_j) = \exp\left(-\gamma\,\|\mathbf{x}_i - \mathbf{x}_j\|^{2}\right),$$
+
+the curve can bend to follow non-linear patterns. Three settings control the fit: the cost $C$ (how strictly the training data are followed), $\gamma$ (how flexible the curve may be) and $\varepsilon$. The predictors were scaled before fitting.
+
+### 3.6.4 XGBoost {#s3-6-4 .unnumbered .unlisted}
+
+XGBoost builds many small decision trees one after another, and each new tree tries to correct the mistakes of the earlier ones (Chen and Guestrin, 2016). The forecast is the sum of the trees,
+
+$$\hat{y}_t = \sum_{k=1}^{K} f_k(\mathbf{x}_t),$$
+
+and the trees are chosen to minimise
+
+$$\sum_{t=1}^{n}\left(y_t - \hat{y}_t\right)^{2} + \sum_{k=1}^{K}\Omega(f_k),$$
+
+where the penalty on each tree is
+
+$$\Omega(f) = \gamma T + \frac{1}{2}\lambda\|\mathbf{w}\|^{2} + \alpha\|\mathbf{w}\|_{1},$$
+
+and $K$ is the number of trees, $T$ is the number of leaves in a tree and $\mathbf{w}$ holds the leaf values. Each tree used a random 80% of the rows and 80% of the predictors. The settings tuned were the tree depth, the learning rate (eta), the number of trees, the minimum child weight and three penalties that keep the trees simple: lambda ($\lambda$, L2 penalty on the leaf values), alpha ($\alpha$, L1 penalty on the leaf values) and gamma ($\gamma$, the minimum gain needed to make a split).
+
+### 3.6.5 One-dimensional Convolutional Neural Network {#s3-6-5 .unnumbered .unlisted}
+
+A 1D-CNN does not receive a table of predictors. It receives the last 12 months as a short sequence with seven series per month: the change in VAT, inflation, the changes in the exchange rate, T-bill rate and CIEA, and the sine and cosine of the month. Small filters slide along the 12 months and look for patterns (LeCun et al., 1998). For a filter $k$ of length 3, each convolutional layer computes
+
+$$h_{j,k} = \text{ReLU}\left(b_k + \sum_{m=1}^{3}\sum_{c} w_{m,c,k}\, z_{j+m-1,\,c}\right), \qquad \text{ReLU}(u) = \max(0, u),$$
+
+where $z$ is the input of the layer, $j$ is the position along the 12 months, $c$ indexes the input series and $w$ and $b_k$ are the filter weights and bias. The output of the last convolutional layer is flattened, passed through a dense layer of 16 units and a dropout layer, and combined into one forecast,
+
+$$\hat{y}_t = \mathbf{v}^{\top}\,\text{ReLU}\left(\mathbf{W}\,\text{vec}(\mathbf{H}_t) + \mathbf{a}\right) + c,$$
+
+where $\mathbf{H}_t$ is the output of the second convolutional layer for the 12 months ending in month $t-1$. The weights were chosen to minimise
+
+$$\frac{1}{n}\sum_{t=1}^{n}\left(y_t - \hat{y}_t\right)^{2} + \lambda_2 \sum \left(\text{weights}\right)^{2},$$
+
+where $\lambda_2 = 0.001$ is the L2 weight penalty. The inputs were scaled using the training months only.
+
+Because the sample is small, the network was kept small: two convolutional layers with 16 filters each (length 3, ReLU activation), a flattening layer, a dense layer of 16 units, a dropout layer with rate 0.2 (Srivastava et al., 2014) and one output unit. The L2 weight penalty of 0.001 was placed on the weights of the convolutional and dense layers to keep them small and reduce overfitting. The network was trained with the Adam optimiser (Kingma and Ba, 2015), a learning rate of 0.001, a batch size of 16 and up to 200 epochs. Training stopped early when the validation loss, measured on the last 15% of the training windows, had not improved for 20 epochs, and the best weights were restored. Neural networks start from random values, so the network was trained five times with different random seeds and the five forecasts were averaged.
+
+## 3.7 Tuning the Models {#s3-7 .unnumbered .unlisted}
+
+The models were tuned with rolling validation, which respects the order of time (Tashman, 2000). For each year from 2019 to 2023, a model learned from all months before that year and was checked on that year. The average validation RMSE over the five years was used to choose the settings. The chosen model was then re-estimated on the whole training period. Table 3.3 shows what was tried. The test data were never used for tuning.
+
+A full search over all 648 XGBoost combinations would have taken far longer, so 24 combinations were drawn at random. This kept the computing time the same as a smaller search while still covering the three penalty settings.
+
+: **Table 3.3.** Settings tried for each model `\label{tbl-3-3}`{=latex}
+
+| Model | Settings tried | Combinations |
+|:-----------|:---------------------------------------------------------------------|:-------------------|
+| ARIMAX | Orders chosen automatically | – |
+| LASSO | Automatic sequence of $\lambda$ values | about 100 |
+| SVR | cost: 0.1, 1, 10, 100; gamma: 0.005, 0.02, 0.07, 0.2; epsilon: 0.01, 0.1 | 32 |
+| XGBoost | depth: 2, 3, 4; eta: 0.03, 0.1; trees: 100, 300; min child weight: 1, 5; lambda: 1, 5, 10; alpha: 0, 0.1, 1; gamma: 0, 0.1, 1 | 24 chosen at random from 648 |
+| 1D-CNN | Fixed small design; number of epochs set by early stopping | – |
+
+## 3.8 Forecast Evaluation {#s3-8 .unnumbered .unlisted}
+
+Forecasts for the 24 test months were compared with the actual values using three measures. Here $V_t$ is the actual VAT, $\hat{V}_t$ the forecast and $n = 24$:
+
+$$\text{RMSE} = \sqrt{\frac{1}{n}\sum_{t=1}^{n}\left(V_t - \hat{V}_t\right)^{2}},$$
+
+$$\text{MAE} = \frac{1}{n}\sum_{t=1}^{n}\left|V_t - \hat{V}_t\right|,$$
+
+$$\text{MAPE} = \frac{100}{n}\sum_{t=1}^{n}\left|\frac{V_t - \hat{V}_t}{V_t}\right|.$$
+
+RMSE and MAE are in GHS million, and MAPE is in per cent. RMSE gives more weight to large misses. MAE is the average size of the error. MAPE shows the error as a share of the actual value. Lower values are better for all three. To show the gain over the Naive forecast, the study also reported
+
+$$\text{RMSE gain over Naive (\%)} = \left(1 - \frac{\text{RMSE}_{\text{model}}}{\text{RMSE}_{\text{Naive}}}\right) \times 100.$$
+
+Because the test period had only 24 months, small differences between models were treated with caution.
+
+## 3.9 Software {#s3-9 .unnumbered .unlisted}
+
+All work was done in R (version 4.5.1) on a Windows computer. The main packages were forecast (ARIMAX) and tseries (ADF and KPSS tests), glmnet (LASSO; Friedman et al., 2010), e1071 (SVR), xgboost (XGBoost) and keras3 with TensorFlow (1D-CNN). Data handling and figures used readxl, dplyr, tidyr, zoo and ggplot2. The 1D-CNN was fitted with TensorFlow 2.21.0 and Keras 3.15.1 in a Python 3.11 environment, using the computer's processor (CPU) only. A fixed random seed (2026) was used so that the results can be repeated.
+
+## 3.10 Ethical Considerations {#s3-10 .unnumbered .unlisted}
+
+The study used only aggregated secondary data. The Domestic VAT series was obtained from the GRA with permission, and the other data are publicly available. No taxpayer-level information was used. The results are reported as they were obtained.
+
+## 3.11 Chapter Summary {#s3-11 .unnumbered .unlisted}
+
+This chapter described the monthly data from 2010 to 2025, the 15 lagged predictors, and the split into 155 training months and 24 test months. It described the three benchmarks and the four machine learning models that were applied, how they were tuned by rolling validation, and how forecasts were judged with RMSE, MAE and MAPE. The next chapter presents the data analysis, the results and the discussion.
+
+# CHAPTER 4 `<w:r><w:br/></w:r>`{=openxml}`\\`{=latex} DATA ANALYSIS, RESULTS AND DISCUSSION {#ch4 .unnumbered .unlisted}
+
+## 4.1 Introduction {#s4-1 .unnumbered .unlisted}
+
+This chapter presents the data analysis and discusses the results. It begins with an exploratory analysis of the data. It then reports what each model learned, compares the forecasts on the test data, and discusses the findings in relation to the three research questions.
+
+## 4.2 Exploratory Analysis of the Data {#s4-2 .unnumbered .unlisted}
+
+### 4.2.1 Domestic VAT over time {#s4-2-1 .unnumbered .unlisted}
+
+Figure 4.1 shows monthly Domestic VAT from 2010 to 2025. VAT rose from about GHS 50 million a month in early 2010 to more than GHS 2,000 million by late 2025. Growth was gradual in the early years and faster after 2020. A sharp fall in early 2020 was visible, and the month-to-month swings became much larger in recent years. On a log scale (Figure 4.2), the series was close to a straight line. This meant that VAT grew at a fairly steady percentage rate over the whole period.
+
+![**Figure 4.1.** Monthly Domestic VAT revenue in Ghana, January 2010 to December 2025 (GHS million).](figs/fig4_1.png){#fig-4-1 width=100%}
+
+![**Figure 4.2.** Monthly Domestic VAT revenue on a log scale. A straight line means steady percentage growth.](figs/fig4_2.png){#fig-4-2 width=100%}
+
+The upward trend was the main reason why the models forecast the monthly change in VAT instead of its level.
+
+### 4.2.2 The other variables {#s4-2-2 .unnumbered .unlisted}
+
+Figure 4.3 shows all the variables. CIEA rose steadily with a small, regular yearly pattern. CPI rose slowly until about 2020 and much faster afterwards. The exchange rate was fairly stable until about 2014, rose gradually, then jumped in 2022 and again in 2024. It reached about GHS 16 per US dollar around the end of 2024 and fell to about GHS 11 by late 2025. The T-bill rate moved in long swings between about 10% and 36%, with a peak in early 2023 and a sharp fall in 2025. Monthly inflation was noisy and was mostly between 0% and 3%, with a high point around 2022.
+
+![**Figure 4.3.** The variables used in the study, January 2010 to December 2025: CIEA, CPI, exchange rate (FX, GHS per US dollar), monthly inflation (%), Treasury bill rate (%) and Domestic VAT (GHS million).](figs/fig4_3.png){#fig-4-3 width=100%}
+
+Table 4.1 gives summary statistics for the six variables. VAT ranged from GHS 47 million to GHS 2,070 million a month, and monthly inflation had a mean of 1.18%. No variable had missing values.
+
+: **Table 4.1.** Summary statistics of the variables, January 2010 to December 2025 (n = 192) `\label{tbl-4-1}`{=latex}
+
+| Variable | Min | 1st Qu. | Median | Mean | 3rd Qu. | Max |
+|:----------------------------|-------:|--------:|--------:|--------:|--------:|---------:|
+| Domestic VAT (GHS million) | 47.06 | 128.42 | 293.81 | 509.10 | 639.18 | 2,069.63 |
+| CPI | 29.20 | 43.17 | 75.00 | 95.25 | 106.15 | 261.70 |
+| Monthly inflation (%) | −1.30 | 0.40 | 0.90 | 1.18 | 1.60 | 8.60 |
+| FX (GHS per US dollar) | 1.42 | 2.25 | 4.41 | 5.55 | 5.97 | 15.99 |
+| T-bill rate (%) | 9.25 | 13.33 | 16.19 | 18.64 | 24.05 | 35.67 |
+| CIEA | 325.5 | 473.3 | 608.6 | 611.4 | 748.9 | 928.3 |
+
+### 4.2.3 Seasonality {#s4-2-3 .unnumbered .unlisted}
+
+VAT followed a clear yearly pattern (Figure 4.4). The typical December was about 20% above the yearly average, and the typical February was about 15% below it. January and March were also below average, while October and November were slightly above. The decomposition in Figure 4.5 showed the same thing: a rising trend, a seasonal pattern that repeated every year with its peak in December, and a remainder that was small in most years but large in 2020 and in 2023–2024. These patterns explain why the predictors included a December indicator, the sine and cosine of the month, and the VAT change 12 months earlier.
+
+![**Figure 4.4.** Seasonality of Domestic VAT: each month's VAT as a ratio of its calendar-year average. Values above the dashed line (1.00) are above-average months. Each box covers the middle half of the years.](figs/fig4_4.png){#fig-4-4 width=100%}
+
+![**Figure 4.5.** Decomposition of log(VAT) into trend, seasonal and remainder parts.](figs/fig4_5.png){#fig-4-5 width=100%}
+
+### 4.2.4 Unusual months {#s4-2-4 .unnumbered .unlisted}
+
+Three months were flagged as unusual (Figure 4.6 and Table 4.2). All three were sharp rises: 75.3% in April 2020, 66.6% in November 2023 and 53.0% in August 2024. Each was followed by a fall. The August 2024 jump fell in the test period. These months were kept in the data (Chapter 3). They probably reflected real events or the timing of payments, but the data could not tell which. They mattered later, because no model could foresee a jump of this size.
+
+: **Table 4.2.** Unusual months (change in VAT more than three standard deviations from the average change) `\label{tbl-4-2}`{=latex}
+
+| Month | VAT (GHS million) | Change (%) | z-score |
+|:---------------|-----------------:|-----------:|---------:|
+| April 2020 | 498 | 75.3 | 4.92 |
+| November 2023 | 1,979 | 66.6 | 4.32 |
+| August 2024 | 2,023 | 53.0 | 3.40 |
+
+![**Figure 4.6.** Month-to-month percentage change in Domestic VAT. Red points mark the three months that are more than three standard deviations from the average change.](figs/fig4_6.png){#fig-4-6 width=100%}
+
+### 4.2.5 Relationship between the predictors and the change in VAT {#s4-2-5 .unnumbered .unlisted}
+
+Figure 4.7 shows the correlation between the change in log VAT (dVAT) and the predictors. The strongest link was with last month's VAT change (VAT_l1, −0.37): a large rise tended to be followed by a fall, and the opposite. The December indicator (0.26) and the VAT change 12 months earlier (0.22) had a positive link. The change in CIEA (0.16) and in the exchange rate (0.15) one month earlier had weaker positive links. Inflation and the T-bill rate had almost none. The predictors were not strongly correlated with each other, apart from the calendar variables and some VAT lags, so repeated information was not a serious problem.
+
+No single predictor was strongly related to the change in VAT. This showed that the forecasting task was hard.
+
+![**Figure 4.7.** Correlation between the monthly change in log VAT (dVAT) and the predictors.](figs/fig4_7.png){#fig-4-7 width=100%}
+
+### 4.2.6 Stationarity of the series {#s4-2-6 .unnumbered .unlisted}
+
+Table 4.3 reports the ADF and KPSS tests. The ADF test has a unit root (a series that keeps drifting) as its null hypothesis, so a small p-value points to a stable series. The KPSS test has stability as its null, so a large p-value points to a stable series. The raw VAT series and log VAT failed both tests: the ADF p-values were 0.990 and 0.268, and the KPSS p-value was at its lowest reported value of 0.01. The monthly change in log VAT passed both tests (ADF 0.01, KPSS 0.10), and so did the monthly changes in log FX, the T-bill rate and log CIEA. This supported the decision to forecast the monthly change in VAT rather than its level, and to enter the exchange rate, T-bill rate and CIEA as monthly changes. Inflation is already a monthly rate and was not tested.
+
+: **Table 4.3.** Stationarity tests (p-values) `\label{tbl-4-3}`{=latex}
+
+| Series | ADF p-value | KPSS p-value |
+|:------------------------------------------|----------:|----------:|
+| VAT (raw level) | 0.990 | 0.01 |
+| log(VAT) | 0.268 | 0.01 |
+| Change in log(VAT) (used in this study) | 0.01 | 0.10 |
+| Change in log(FX) | 0.01 | 0.10 |
+| Change in T-bill rate | 0.01 | 0.10 |
+| Change in log(CIEA) | 0.01 | 0.10 |
+
+*Note:* The p-values are reported at the limits of the test tables (ADF: smallest value 0.01; KPSS: between 0.01 and 0.10).
+
+## 4.3 Training and Test Data {#s4-3 .unnumbered .unlisted}
+
+Figure 4.8 shows the split. The test period was a demanding one. VAT in the 24 test months ranged from about GHS 1,150 million to GHS 2,070 million, which was higher than in most of the training period, and the period included the sharp jump of August 2024.
+
+![**Figure 4.8.** Training period (up to December 2023) and test period (January 2024 to December 2025, shaded).](figs/fig4_8.png){#fig-4-8 width=100%}
+
+## 4.4 Results of the Individual Models {#s4-4 .unnumbered .unlisted}
+
+This section reports the results of applying the four machine learning models and the ARIMAX benchmark (Objective 1). Table 4.4 summarises the settings chosen for each model and, where available, the average validation RMSE on the log change in VAT. The validation errors of LASSO (about 0.134) and SVR (0.135) were lower than that of XGBoost (0.145), which already suggested that the simpler and kernel-based models suited this small sample better than the tree ensemble.
+
+: **Table 4.4.** Settings chosen by rolling validation `\label{tbl-4-4}`{=latex}
+
+| Model | Chosen setting | Validation RMSE |
+|:-----------|:----------------------------------------------------------------|:---------------:|
+| ARIMAX | Regression with ARIMA(0,0,1) errors; eight lagged predictors; no seasonal terms | – |
+| LASSO | $\lambda$ = 0.00291 | about 0.134 |
+| SVR | cost = 10, gamma = 0.005, epsilon = 0.1 | 0.135 |
+| XGBoost | depth = 2, eta = 0.03, 300 trees, min child weight = 1, lambda = 1, alpha = 0.1, gamma = 0 | 0.145 |
+| 1D-CNN | Fixed design; stopped early by the validation loss; five runs averaged | – |
+
+### 4.4.1 ARIMAX {#s4-4-1 .unnumbered .unlisted}
+
+The automatic search chose a regression model with ARIMA(0,0,1) errors. No seasonal terms were needed, because the seasonal pattern was already carried by the 12-month VAT lag and the December indicator. The residual checks in Figure 4.9 looked acceptable. The residuals moved around zero, almost all autocorrelations were inside the dashed limits (one lag, at about 7, was slightly outside), and the histogram was close to a normal curve. A few large residuals appeared in 2020 and in late 2023, which were the unusual months. The model was therefore a reasonable benchmark. The Ljung–Box test on the residuals (24 lags) gave $Q^{*} = 24.39$ with 23 degrees of freedom and a p-value of 0.383, so there was no evidence of autocorrelation left in the residuals.
+
+Table 4.5 gives the estimated coefficients. The change in CIEA one month earlier (1.20) and the change in the exchange rate one month earlier (0.77) were the only regressors more than three standard errors from zero, and both were positive. The T-bill and inflation coefficients were close to zero, and the moving-average term was negative (−0.78), which fitted the tendency of VAT growth to fall back after a strong month. These findings agreed with those of LASSO.
+
+: **Table 4.5.** ARIMAX estimates (regression with ARIMA(0,0,1) errors, training period) `\label{tbl-4-5}`{=latex}
+
+| Term | Coefficient | Standard error |
+|:----------------|-----------:|-----------:|
+| MA(1) | −0.7823 | 0.1483 |
+| FX, lag 1 | 0.7669 | 0.2299 |
+| FX, lag 2 | −0.4252 | 0.2461 |
+| T-bill, lag 1 | −0.0004 | 0.0062 |
+| T-bill, lag 2 | 0.0022 | 0.0061 |
+| CIEA, lag 1 | 1.2036 | 0.3072 |
+| CIEA, lag 2 | −0.1570 | 0.3182 |
+| Inflation, lag 1 | 0.0010 | 0.0088 |
+| Inflation, lag 2 | 0.0063 | 0.0078 |
+
+*Note:* $\sigma^{2} = 0.01322$; log likelihood = 119.5; AIC = −218.99; AICc = −217.47; BIC = −188.56.
+
+![**Figure 4.9.** Residual checks for the ARIMAX model: residuals over time (top), autocorrelation function (bottom left) and histogram of the residuals (bottom right).](figs/fig4_9.png){#fig-4-9 width=100%}
+
+### 4.4.2 LASSO {#s4-4-2 .unnumbered .unlisted}
+
+The validation error was lowest when $\lambda$ was 0.00291 (Figure 4.10), with a validation RMSE of about 0.134 (in units of log change). The error rose quickly for larger $\lambda$.
+
+![**Figure 4.10.** LASSO tuning: average validation RMSE for each value of lambda. The dashed line marks the chosen value.](figs/fig4_10.png){#fig-4-10 width=100%}
+
+Figure 4.11 shows which predictors LASSO kept. The positive coefficients were for the change in CIEA one and two months earlier, the change in the exchange rate one month earlier, the December indicator and the VAT change 12 months earlier. The negative coefficients were for VAT changes one, two and three months earlier. Inflation, the second lag of the exchange rate, the second lag of the T-bill rate and the cosine of the month were removed. The T-bill rate lag 1 and the sine of the month were almost zero. Predictors are measured in different units, so the sizes of the bars should not be compared too closely.
+
+In plain terms, VAT growth tended to fall back after a strong month, tended to be higher in December and in the same month as last year, and was higher after months of stronger economic activity and a rising exchange rate (a weaker cedi). These are associations, not proof of cause.
+
+![**Figure 4.11.** LASSO coefficients at the chosen lambda. Predictors with no bar were set to zero.](figs/fig4_11.png){#fig-4-11 width=100%}
+
+### 4.4.3 SVR {#s4-4-3 .unnumbered .unlisted}
+
+Figure 4.12 shows the SVR tuning results. The best setting was a moderate cost (about 10) with a small gamma (0.005) and epsilon 0.1, with a validation RMSE of about 0.135. Very high cost (100) was clearly worse, with errors up to about 0.18. This suggested overfitting when the model followed the training data too closely. A large gamma (0.2) was also worse.
+
+![**Figure 4.12.** SVR tuning: average validation RMSE for each combination of cost and gamma, for two values of epsilon. Lighter cells mean lower error.](figs/fig4_12.png){#fig-4-12 width=100%}
+
+### 4.4.4 XGBoost {#s4-4-4 .unnumbered .unlisted}
+
+Figure 4.13 shows that the VAT change of the previous month carried about one third of the total importance. It was followed by the change in CIEA one month earlier (about 10%), the VAT changes two and three months earlier, the exchange rate two months earlier and the cosine of the month. This agreed with LASSO: the recent VAT changes and economic activity mattered most, while inflation and the T-bill rate mattered little. The best setting found by the random search used shallow trees (depth 2), a low learning rate (0.03) and 300 trees, which again pointed to a model that needed to be kept simple in a small sample. Its validation RMSE (0.145) was higher than those of LASSO and SVR.
+
+![**Figure 4.13.** XGBoost: importance (gain) of each predictor.](figs/fig4_13.png){#fig-4-13 width=100%}
+
+### 4.4.5 1D-CNN {#s4-4-5 .unnumbered .unlisted}
+
+Figure 4.14 shows the learning curve of the first of the five runs. The training loss fell steadily, but the validation loss was lowest at the second epoch and then rose. Training stopped at epoch 22 and the weights from the second epoch were restored. This meant that the network began to overfit almost at once. The validation loss also stayed above the training loss throughout. The validation months (about 2022–2023) were more volatile than earlier years, but the pattern still showed that 155 training months were too few for the network to learn much.
+
+![**Figure 4.14.** 1D-CNN learning curve for the first of the five training runs: training and validation loss (mean squared error on scaled data).](figs/fig4_14.png){#fig-4-14 width=100%}
+
+## 4.5 Forecast Performance on the Test Data {#s4-5 .unnumbered .unlisted}
+
+### 4.5.1 Accuracy measures {#s4-5-1 .unnumbered .unlisted}
+
+This section compares the machine learning models with the conventional benchmarks (Objective 2). Table 4.6 gives the test results for the 24 months from January 2024 to December 2025, Table 4.7 gives the rank of each model on each measure, and Figure 4.15 shows the errors as bars.
+
+The main points were as follows.
+
+- **SVR was the best model on all three measures.** Its RMSE was GHS 201.40 million, which was 16.0% lower than the Naive forecast. Its MAPE was 9.36%.
+- **The lead of SVR over ARIMAX was small.** The RMSE differed by about 0.3%, the MAE by about 4% and the MAPE by about 2%.
+- **LASSO and XGBoost beat the Naive forecast on RMSE (by 14.6% and 12.3%) but not ARIMAX.** On MAPE, both were slightly worse than the Naive forecast, and LASSO was also slightly worse on MAE.
+- **The 1D-CNN had the same RMSE as the Naive forecast.** Its MAE and MAPE were a little better than Naive. Its MAE was also slightly lower than that of ARIMAX, but its RMSE and MAPE were worse.
+- **The Seasonal Naive forecast was far the worst.** VAT grows over time, so the value of the same month last year was usually too low.
+
+: **Table 4.6.** Test-set results (January 2024 to December 2025), ordered by RMSE `\label{tbl-4-6}`{=latex}
+
+| Model | RMSE | MAE | MAPE (%) | RMSE gain over Naive (%) |
+|:---------------|-------:|-------:|---------:|-----------------------:|
+| SVR | 201.40 | 145.59 | 9.36 | 16.0 |
+| ARIMAX | 201.94 | 152.16 | 9.52 | 15.7 |
+| LASSO | 204.69 | 158.09 | 10.02 | 14.6 |
+| XGBoost | 210.25 | 155.78 | 10.07 | 12.3 |
+| 1D-CNN | 239.63 | 151.21 | 9.65 | 0.0 |
+| Naive | 239.65 | 156.44 | 9.82 | 0.0 |
+| Seasonal Naive | 371.59 | 329.89 | 20.43 | −55.1 |
+
+: **Table 4.7.** Rank of each model on each measure (1 = best) `\label{tbl-4-7}`{=latex}
+
+| Model | RMSE | MAE | MAPE |
+|:---------------|-----:|-----:|-----:|
+| SVR | 1 | 1 | 1 |
+| ARIMAX | 2 | 3 | 2 |
+| LASSO | 3 | 6 | 5 |
+| XGBoost | 4 | 4 | 6 |
+| 1D-CNN | 5 | 2 | 3 |
+| Naive | 6 | 5 | 4 |
+| Seasonal Naive | 7 | 7 | 7 |
+
+All typical errors were large. The best model was wrong by about 9% in an average month, or about GHS 146 million.
+
+![**Figure 4.15.** Test-set errors of the seven models: MAE, MAPE and RMSE (lower is better).](figs/fig4_15.png){#fig-4-15 width=100%}
+
+### 4.5.2 Forecasts and errors over time {#s4-5-2 .unnumbered .unlisted}
+
+Figure 4.16 shows the forecasts against the actual values. All models followed the general upward movement and the usual month-to-month changes, but none predicted the sharp jump of August 2024, when VAT rose to about GHS 2,020 million. The errors in that month were between about GHS 520 million (ARIMAX) and GHS 700 million (Naive) (Figure 4.18). In the next month, VAT fell back to about GHS 1,390 million. The Naive forecast and the 1D-CNN repeated the August spike and missed by about GHS 640 million and GHS 690 million, while the other models missed by less than GHS 270 million. All models except the Seasonal Naive also over-forecast January 2024, when VAT dropped to about GHS 1,240 million, by GHS 280 million to GHS 470 million.
+
+Most of the large errors fell in the same few months for all models. This meant that the models differed little because the biggest misses came from shocks that none of them could predict. A single month such as August 2024 had a large effect on RMSE, which is why the RMSE values of the top four models were so close.
+
+Figure 4.17 shows predicted against actual values. The SVR and XGBoost points lay closer to the dashed line than the others for mid-range values. The ARIMAX forecasts stayed within a narrow band and reacted less to high and low months. All models under-forecast the highest months. The Seasonal Naive forecasts lay mostly below the line, which agreed with the positive errors in Figure 4.18.
+
+![**Figure 4.16.** Actual and predicted Domestic VAT in the test period (GHS million). All forecasts are one step ahead.](figs/fig4_16.png){#fig-4-16 width=100%}
+
+![**Figure 4.17.** Predicted against actual Domestic VAT for each model in the test period. The dashed line marks perfect forecasts.](figs/fig4_17.png){#fig-4-17 width=100%}
+
+![**Figure 4.18.** Forecast errors over time (actual minus predicted, GHS million). Positive values mean the model forecast too little.](figs/fig4_18.png){#fig-4-18 width=100%}
+
+## 4.6 Discussion {#s4-6 .unnumbered .unlisted}
+
+This section discusses the results in relation to the three research questions in Section 1.5. Each research question matched one of the three objectives in Section 1.4, and each answer is compared with the earlier studies reviewed in Chapter 2.
+
+### 4.6.1 Accuracy of the Machine Learning Models {#s4-6-1 .unnumbered .unlisted}
+
+This section answers Research Question 1 and meets Objective 1. All four machine learning models were applied successfully and produced one-month-ahead forecasts of Domestic VAT. On the test data, their MAPE was between 9.4% and 10.1%, which means that a typical forecast was wrong by about one-tenth. The RMSE was between 201 and 210 (GHS million) for SVR, LASSO and XGBoost, and 240 for the 1D-CNN, which was the same as the Naive forecast. Compared with the Naive forecast, SVR, LASSO and XGBoost reduced the RMSE by 12% to 16%. The models therefore gave a useful forecast, but the average error was still large.
+
+These results are more modest than the accuracy above 98% reported for a multivariate LSTM model in Nigeria (Ajisola, 2023). The two studies used different data, forecast periods and accuracy measures, so the figures cannot be compared directly. The present results are closer to studies that found that machine learning does not always give large gains when data are limited (Jayanti et al., 2025; Lee et al., 2025). The weak result of the 1D-CNN also fits what was said in Section 2.3.3: models that need more data, such as neural networks, find it hard to learn from fewer than 200 monthly observations. The study also adds to the work of Ofori et al. (2021), who used only time-series methods for VAT in Ghana, by showing that machine learning models can be applied to Domestic VAT and can match, and slightly improve on, a well-specified ARIMAX model.
+
+### 4.6.2 The Most Accurate Forecasting Model {#s4-6-2 .unnumbered .unlisted}
+
+This section answers Research Question 2 and meets Objective 2. SVR was the most accurate model on RMSE, MAE and MAPE. ARIMAX came second on RMSE and MAPE, followed by LASSO and XGBoost, while the 1D-CNN and the Naive forecast came next and the Seasonal Naive forecast was the worst. The lead of SVR over ARIMAX was very small (about 0.3% on RMSE), and only SVR did better than ARIMAX. LASSO and XGBoost were close to ARIMAX but not better on RMSE, and the 1D-CNN was worse on RMSE and MAPE and slightly better on MAE. Because all models used the same prepared data, a well-specified ARIMAX gave most of the gain that the machine learning models gave. The differences between the top four models were also small compared with the size of the errors, and the test period had only 24 months. The ranking could therefore change in another period, and no formal test of the differences (such as the Diebold–Mariano test; Diebold and Mariano, 1995) was applied in this study.
+
+This pattern agrees with the mixed evidence in the literature. Wong and La (2024) found that machine learning added value for a volatile tax line but not for a stable one. Larson and Overton (2024) concluded that how the data are prepared matters as much as the choice of model, and Akinrinola et al. (2024) reported that no single technique is best in every setting. Some studies also found that traditional or hybrid models stay competitive when data are limited (Jayanti et al., 2025; Lee et al., 2025). Agbenyega et al. (2022) found that machine learning models clearly beat ARIMA variants for customs revenue in Ghana, and Ofori et al. (2021) found that ARIMA with intervention beat the Holt method and the GRA's own forecasts for VAT. This study adds that, for Domestic VAT, SVR was slightly better than a well-specified ARIMAX, but the gain was small.
+
+Three reasons probably explain why the gains were small. First, the sample was small: there were 155 training months and 15 predictors. Models that need more data, such as the 1D-CNN, overfitted quickly, and the XGBoost trees had little data to learn from. The kernel method (SVR) coped better with the small sample, which was what was expected at the proposal stage. Second, the predictors were only weakly related to the monthly change in VAT (Figure 4.7), so there was little extra for a flexible model to find. Third, the largest errors came from sudden jumps that none of the models could foresee. In practice, a one-month-ahead forecast with an expected error of about 9% can be used as a check on monthly collection targets and to flag months when collections look unusually low or high, but it cannot replace judgement.
+
+### 4.6.3 Factors that Influence Domestic VAT Revenue {#s4-6-3 .unnumbered .unlisted}
+
+This section answers Research Question 3 and meets Objective 3. The models agreed on the main drivers of the monthly change in VAT. These were past changes in VAT (VAT tended to fall back after a strong month), the previous month's change in economic activity (CIEA), the previous month's change in the exchange rate, and the calendar (the December peak and the same month last year). Inflation and the T-bill rate carried little weight. The data did not contain administrative variables, such as the rollout of e-VAT or changes in the tax rate, so their effects could not be measured. These results show association and not proof of cause.
+
+The importance of economic activity agrees with the literature, which treats economic activity and consumption as the main determinants of the VAT base (Section 2.2.3). The positive link with the exchange rate fits the view that a weaker cedi can raise nominal VAT receipts, although the literature also warns that depreciation can erode purchasing power (Section 2.2.3). Inflation was expected to matter, because Ghana's high inflation is said to compress real incomes and the VAT base. Its small weight here may be because monthly inflation was very noisy (Figure 4.3), so it carried little information about the next month's VAT. Sihotang et al. (2025) used the exchange rate, inflation and economic growth to forecast VAT in Indonesia. In this study, the exchange rate and economic activity were useful, but inflation was not.
+
+## 4.7 Chapter Summary {#s4-7 .unnumbered .unlisted}
+
+The exploratory analysis showed a strong upward trend, a December peak and a few extreme months. SVR gave the most accurate forecasts on RMSE, MAE and MAPE, but its lead over ARIMAX was small. LASSO and XGBoost beat the Naive forecast but not ARIMAX, the 1D-CNN did no better than the Naive forecast on RMSE, and the Seasonal Naive forecast was the weakest. All models missed the jump in August 2024. Past VAT changes, economic activity, the exchange rate and the December effect were the main drivers.
+
+# CHAPTER 5 `<w:r><w:br/></w:r>`{=openxml}`\\`{=latex} SUMMARY, CONCLUSIONS AND RECOMMENDATIONS {#ch5 .unnumbered .unlisted}
+
+## 5.1 Introduction {#s5-1 .unnumbered .unlisted}
+
+This chapter summarises the study, states the conclusions, and gives recommendations and suggestions for further research.
+
+## 5.2 Summary of the Study {#s5-2 .unnumbered .unlisted}
+
+Domestic VAT is a major source of revenue for Ghana, but it is hard to forecast. In 2024, it fell 24.3% short of its target, although total tax revenue exceeded its target (Ghana Revenue Authority, 2024). The aim of this study was to apply and evaluate machine learning models for forecasting Domestic VAT revenue in Ghana and to compare them with conventional forecasting methods.
+
+Monthly data from January 2010 to December 2025 were used. LASSO, SVR, XGBoost and a 1D-CNN were applied, and compared with Naive, Seasonal Naive and ARIMAX benchmarks. The models forecast the monthly change in log VAT from 15 predictors based on earlier months. They were tuned by rolling validation on data up to December 2023 and tested on the 24 months from January 2024 to December 2025, using RMSE, MAE and MAPE.
+
+## 5.3 Summary of Findings {#s5-3 .unnumbered .unlisted}
+
+The findings follow the three objectives of the study.
+
+1. **Apply machine learning models to forecast Domestic VAT revenue (Objective 1).** LASSO, SVR, XGBoost and a 1D-CNN were applied successfully. On the test data, SVR had an RMSE of 201.40, LASSO 204.69, XGBoost 210.25 and the 1D-CNN 239.63 (GHS million). The MAPE of the four models was between 9.36% and 10.07%.
+
+2. **Compare the machine learning models with the conventional benchmarks (Objective 2).** ARIMAX, with the same predictors, had an RMSE of 201.94, and the Naive and Seasonal Naive forecasts had RMSEs of 239.65 and 371.59. SVR was the best model on RMSE, MAE (145.59) and MAPE (9.36%), but its lead over ARIMAX was very small. LASSO and XGBoost beat the Naive forecast on RMSE but not ARIMAX. The 1D-CNN did no better than the Naive forecast on RMSE. SVR was therefore the most suitable model, with ARIMAX a close and simpler alternative.
+
+3. **Identify the key factors that influence Domestic VAT revenue (Objective 3).** Past changes in VAT, the previous month's changes in economic activity (CIEA) and in the exchange rate, and the December effect were the main drivers. Inflation and the T-bill rate had little weight.
+
+## 5.4 Conclusions {#s5-4 .unnumbered .unlisted}
+
+The study concluded that:
+
+1. Machine learning models could forecast monthly Domestic VAT in Ghana with a typical error of about 9% to 10%. This was a clear gain over the Naive forecast in RMSE (12% to 16%), but it was not a large gain over a well-specified ARIMAX model.
+
+2. SVR was the most accurate model on all three measures, so machine learning could match and slightly improve on the conventional model. With only 179 monthly observations, the more complex models (XGBoost and the 1D-CNN) did not do better than the simpler ones.
+
+3. No model could predict sudden jumps, such as the one in August 2024. These months accounted for much of the forecast error.
+
+4. Recent changes in VAT, economic activity and the exchange rate, together with the December effect, were useful clues for forecasting the next month's VAT.
+
+## 5.5 Recommendations {#s5-5 .unnumbered .unlisted}
+
+For the Ghana Revenue Authority and the Ministry of Finance:
+
+1. Use SVR together with ARIMAX to produce one-month-ahead forecasts of Domestic VAT. Use them alongside existing methods, and compare them with actual collections every month. ARIMAX is easier to explain, and SVR was slightly more accurate.
+
+2. Record policy and administrative events, such as changes in the VAT rate, the rollout of e-VAT and large payment or refund delays. Large errors came from sudden jumps, and these records would help to explain them and, in time, to model them.
+
+3. Re-estimate the models when new data arrive, at least once a year, and report more than one error measure.
+
+4. Treat the forecasts as a guide and not as a replacement for judgement, especially in months with known policy changes.
+
+## 5.6 Limitations of the Study {#s5-6 .unnumbered .unlisted}
+
+1. The sample was small (155 training months and 24 test months), which limited what complex models could learn.
+
+2. Only aggregated, monthly, macroeconomic data were used. Administrative variables and taxpayer-level data were not available.
+
+3. Only one-step-ahead forecasts were studied. The models were estimated once and not updated during the test period.
+
+4. The test period included a few extreme months, so the ranking of the closest models may change in another period. No formal test of the differences between models was applied.
+
+5. The results apply to Ghana's Domestic VAT and may not carry over to other taxes or countries.
+
+## 5.7 Suggestions for Further Research {#s5-7 .unnumbered .unlisted}
+
+1. Apply a formal test, such as the Diebold–Mariano test, to check whether differences between models are real.
+
+2. Study forecasts for several months ahead, and re-estimate the models as new data arrive.
+
+3. Add administrative and policy variables, such as VAT rate changes and e-VAT, and variables for the three unusual months.
+
+4. Try hybrid models, such as ARIMAX combined with SVR, and combinations of forecasts.
+
+5. Test more flexible models, such as the LSTM, when more data are available, for example from taxpayer-level or sector-level records.
+
+
+# REFERENCES {#references .unnumbered .unlisted}
+
+```{=latex}
+\begingroup\singlespacing\setlength{\leftskip}{2.5em}\setlength{\parindent}{-2.5em}\setlength{\parskip}{6pt}
+```
+
+Abedin, M. Z., Chi, G., Uddin, M. M., Satu, M. S., Khan, I., and Hajek, P. (2021). Tax default prediction using feature transformation-based machine learning.
+
+Abiire, M. A., Atindaana, P. A., and Ayimpoya, R. N. (2020). Education and tax compliance in Ghana.
+
+Agbenyega, D. A., Andoh, J., Iddi, S., and Asiedu, L. (2022). Modelling customs revenue in Ghana using novel time series methods. *Applied Computational Intelligence and Soft Computing*, 2022(1):2111587.
+
+Ajisola, A. S. (2023). *An Efficient Time Series Model for Tax Revenue Forecasting: A Case of Nigeria*. PhD thesis, AUST.
+
+Akinrinola, O., Addy, W. A., Ajayi-Nifise, A. O., Odeyemi, O., and Falaiye, T. (2024). Application of machine learning in tax prediction: A review with practical approaches. *Global Journal of Engineering and Technology Advances*, 18(02):102–117.
+
+Amanamah, R. B. (2016). Tax compliance among small and medium scale enterprises in Kumasi Metropolis, Ghana. *Journal of Economics and Sustainable Development*, 7(16), 5–16.
+
+Antwi, S., Ebenezer, A., and Zhao, X. (2012). Impact of VAT rate changes on VAT revenue in Ghana. *International Journal of Social Science Tomorrow*, 10(1):1–10.
+
+Bird, R. M., Martinez-Vazquez, J., and Torgler, B. (2008). Tax effort in developing countries and high income countries: The impact of corruption, voice and accountability. *Economic Analysis and Policy*, 38(1):55–71.
+
+Chen, T. and Guestrin, C. (2016). XGBoost: A scalable tree boosting system. In *Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining*, pages 785–794.
+
+Cobham, A. (2005). The Oxford Council on Good Governance.
+
+Da Silva, L. S., Rigitano, H., Carvalho, R. N., and Souza, J. C. F. (2016). Bayesian networks on income tax audit selection: A case study of Brazilian tax administration. In *BMA@UAI*, pages 14–20.
+
+Diebold, F. X. and Mariano, R. S. (1995). Comparing predictive accuracy. *Journal of Business and Economic Statistics*, 13(3):253–263.
+
+Drucker, H., Burges, C. J. C., Kaufman, L., Smola, A., and Vapnik, V. (1997). Support vector regression machines. In *Advances in Neural Information Processing Systems*, volume 9, pages 155–161.
+
+Du Plooy, R. and Venter, P. J. (2021). Pricing vanilla options using artificial neural networks: Application to the South African market. *Cogent Economics & Finance*, 9(1):1914285.
+
+Ebrill, M. L. P., Keen, M. M., and Perry, M. V. P. (2001). *The Modern VAT*. International Monetary Fund.
+
+Febriminanto, R. D. and Wasesa, M. (2022). Machine learning analytics for predicting tax revenue potential. *Indonesian Treasury Review: Jurnal Perbendaharaan, Keuangan Negara dan Kebijakan Publik*, 7(3):193–205.
+
+Friedman, J., Hastie, T., and Tibshirani, R. (2010). Regularization paths for generalized linear models via coordinate descent. *Journal of Statistical Software*, 33(1):1–22.
+
+Ghana Revenue Authority (2024). Annual revenue performance report. Technical report, Ghana Revenue Authority, Accra, Ghana.
+
+Hyndman, R. J. and Athanasopoulos, G. (2021). *Forecasting: Principles and Practice*. OTexts, Melbourne, 3rd edition.
+
+Hyndman, R. J. and Khandakar, Y. (2008). Automatic time series forecasting: The forecast package for R. *Journal of Statistical Software*, 27(3):1–22.
+
+Jayanti, D., Sulistyo, S., and Santosa, P. I. (2025). Forecasting tax revenue in Indonesia using single and hybrid methods. In *2025 International Conference on Advancement in Data Science, E-learning and Information System (ICADEIS)*, pages 1–6. IEEE.
+
+Jenkins, G. P., Kuo, C.-Y., and Shukla, G. (2000). *Tax Analysis and Revenue Forecasting*. Cambridge, Massachusetts: Harvard Institute for International Development, Harvard University.
+
+Junquera-Varela, R. F., Verhoeven, M., Shukla, G. P., Haven, B., Awasthi, R., and Moreno-Dodson, B. (2017). *Strengthening Domestic Resource Mobilization: Moving from Theory to Practice in Low- and Middle-Income Countries*. World Bank Publications.
+
+Kamiri, J. and Mariga, G. (2021). Research methods in machine learning: A content analysis. *International Journal of Computer and Information Technology*, 10(2).
+
+Kifordu, B. C. (2021). Machine learning in tax administration: A case study of Nigeria.
+
+Kingma, D. P. and Ba, J. (2015). Adam: A method for stochastic optimization. In *3rd International Conference on Learning Representations (ICLR)*.
+
+Kithure, M. E. (2021). Use of time series models on forecasting of value added tax revenue in Kenya Revenue Authority.
+
+Kithure, M. E., Waititu, A., and Wanjoya, A. (2019). Modelling and forecasting volatility of value added tax revenue in Kenya. *Science Journal of Applied Mathematics and Statistics*, 7(1):1–7.
+
+Kummari, D. (2023). AI-powered tax compliance: Enhancing accuracy and efficiency through predictive modeling. *Education Administration Theory and Practices*, 29.
+
+Larson, S., Overton, M., et al. (2024). Modeling approach matters, but not as much as preprocessing: Comparison of machine learning and traditional revenue forecasting techniques. *Public Finance Journal*, 1(1):29–48.
+
+LeCun, Y., Bottou, L., Bengio, Y., and Haffner, P. (1998). Gradient-based learning applied to document recognition. *Proceedings of the IEEE*, 86(11):2278–2324.
+
+Lee, S., Lee, K., and Mun, S. (2025). Robustness of machine learning-based forecasting models for local tax revenues in volatile economic conditions: Evidence from the COVID-19 pandemic. *Journal of Asian Governance*, 2(2):135–159.
+
+Murorunkwere, B. F., Haughton, D., Nzabanita, J., Kipkogei, F., and Kabano, I. (2023). Predicting tax fraud using supervised machine learning approach. *African Journal of Science, Technology, Innovation and Development*, 15(6):731–742.
+
+Nartey, D. A. (2011). *Effects of Changes in the Rates of Value Added Tax on VAT Revenue in Ghana from 2003 to 2010*. PhD thesis.
+
+Ofori, M. S., Fumey, A., and Nketiah-Amponsah, E. (2021). Forecasting value added tax revenue in Ghana. *Journal of Economics and Financial Analysis*, 4(2):63–99.
+
+Ojo, A. O. and Shittu, S. A. (2023). Value added tax compliance, and small and medium enterprises (SMEs): Analysis of influential factors in Nigeria. *Cogent Business & Management*, 10(2):2228553.
+
+Prichard, W. (2010). Taxation and state building: Towards a governance focused tax reform agenda. *IDS Working Papers*, 2010(341):01–55.
+
+Sabaj, E. and Kahveci, M. (2018). Forecasting tax revenues in an emerging economy: The case of Albania.
+
+Sihotang, N., Salsabila, A., Putra, F. N., Nurrahmah, H., and Nugraha, V. Y. (2025). Predictive analysis of VAT revenue in 2025: The effect of macroeconomic factors on VAT revenue. *Journal of Applied Accounting and Sustainable Finance*, 1(2):142–166.
+
+Srivastava, N., Hinton, G., Krizhevsky, A., Sutskever, I., and Salakhutdinov, R. (2014). Dropout: A simple way to prevent neural networks from overfitting. *Journal of Machine Learning Research*, 15(56):1929–1958.
+
+Streimikiene, D., Rizwan Raheem, A., Vveinhardt, J., Pervaiz Ghauri, S., and Zahid, S. (2018). Forecasting tax revenues using time series techniques: A case of Pakistan. *Economic Research-Ekonomska Istraživanja*, 31(1):722–754.
+
+Şengüler, H. and Kara, B. (2025). Forecasting the inflation for budget forecasters: An analysis of ANN model performance in Türkiye. *Ekonomi Politika ve Finans Araştırmaları Dergisi*, 10(1):58–91.
+
+Tashman, L. J. (2000). Out-of-sample tests of forecasting accuracy: An analysis and review. *International Journal of Forecasting*, 16(4):437–450.
+
+Terkper, S. (1996). VAT in Ghana: Why it failed.
+
+Thayyib, P., Thorakkattle, M. N., Usmani, F., Yahya, A. T., and Farhan, N. H. (2023). Forecasting Indian goods and services tax revenue using TBATS, ETS, neural networks, and hybrid time series models. *Cogent Economics & Finance*, 11(2):2285649.
+
+Tibshirani, R. (1996). Regression shrinkage and selection via the lasso. *Journal of the Royal Statistical Society: Series B*, 58(1):267–288.
+
+Twesige, D., Gshejaa, F., Hategikimanaa, U., Ndikubwimanaa, P., Mwizaa, Y., Hitayezua, I.,
+
+et al. (2020). Smart taxation (4taxation): Effect of fourth industrial revolution (4IR) on tax compliance in Rwanda.
+
+Vancsura, L., Tatay, T., and Bareith, T. (2025). Navigating AI-driven financial forecasting: A systematic review of current status and critical research gaps. *Forecasting*, 7(3):36.
+
+Wong, C. H. J. and La, N. (2024). Applying machine learning in tax revenue forecasting. *Victoria’s Economic Bulletin*, 8(2).
+
+```{=latex}
+\endgroup
+```
